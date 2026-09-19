@@ -29,7 +29,7 @@ services:
 
   orion-light:
     build: .
-    image: orion-light:${ORION_VERSION:-latest}
+    image: docker.upgoos.com/orion-light:${ORION_VERSION:-latest}
     restart: unless-stopped
     depends_on:
       llama-server:

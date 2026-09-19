@@ -111,7 +111,7 @@ docker run -d \
   -e SECRET_KEY="generate-a-secure-random-key-here" \
   -e DEFAULT_PROVIDER="local" \
   --restart unless-stopped \
-  orion-light:latest
+  docker.upgoos.com/orion-light:latest
 ```
 
 Open your browser at `http://localhost:8000` to access the sovereign dashboard.
@@ -166,7 +166,8 @@ version: '3.8'
 
 services:
   orion-light:
-    build: .
+    image: docker.upgoos.com/orion-light:latest
+    # build: .  # (Uncomment to build from local source)
     container_name: orion-light
     restart: unless-stopped
     ports:

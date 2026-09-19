@@ -16,7 +16,7 @@ set -euo pipefail
 
 IMAGE="orion-light"
 PUSH="${1:-}"
-REGISTRY="${REGISTRY:-}"
+REGISTRY="${REGISTRY:-docker.upgoos.com}"
 
 # Lê a versão do arquivo VERSION
 if [[ ! -f VERSION ]]; then
