@@ -122,7 +122,7 @@
       <p id="login-err" class="text-rose-400 text-xs bg-rose-950/40 border border-rose-800/40 p-2.5 rounded-lg hidden"></p>
       <button type="submit"
         class="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/35 transition duration-200">
-        Autenticar
+        <span data-i18n="login_btn">Autenticar</span>
       </button>
     </form>
   </div>
@@ -212,8 +212,7 @@
               <span data-i18n="realtime_badge" class="tracking-wide">TEMPO REAL</span>
               <span id="live-indicator-time" class="text-[10px] text-slate-400 font-mono pl-1.5 border-l border-white/10">--:--:--</span>
             </div>
-            <button id="btn-toggle-live" onclick="toggleRealtimeMetrics()" class="text-xs bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/10 px-3 py-1.5 rounded-xl font-medium transition shadow-sm" data-i18n-title="btn_pause">
-              ⏸️ Pausar
+            <button id="btn-toggle-live" onclick="toggleRealtimeMetrics()" class="text-xs bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/10 px-3 py-1.5 rounded-xl font-medium transition shadow-sm" data-i18n-title="btn_pause"><span data-i18n="btn_pause">⏸️ Pausar</span>
             </button>
           </div>
         </div>
@@ -223,7 +222,7 @@
           <div class="flex items-center justify-between mb-2.5">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
               <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
-              <span data-i18n="status_hw_title">Recursos de Hardware & Processo LLM</span> (Tempo Real)
+              <span data-i18n="status_hw_title">Recursos de Hardware & Processo LLM</span> <span data-i18n="status_throughput_realtime" class="text-slate-500 font-normal text-xs">(Tempo Real)</span>
             </h3>
             <span class="text-[10px] text-slate-500 mono" data-i18n="status_hw_frequency">Frequência: 2s</span>
           </div>
@@ -281,7 +280,7 @@
             </div>
             <div>
               <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                Playground de Teste
+                <span data-i18n="chat_title">Playground de Teste</span>
                 <span class="badge bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[10px]" data-i18n="chat_badge_sovereign">Soberano</span>
               </h2>
               <p class="text-[11px] text-slate-400" data-i18n="chat_subtitle">Verifique respostas, latência (TTFT) e tokens gerados em streaming direto.</p>
@@ -293,10 +292,10 @@
               <span class="text-[11px] text-slate-400 font-medium" data-i18n="chat_provider_label">Provedor:</span>
               <select id="chat-provider" class="bg-transparent text-xs text-cyan-300 font-semibold focus:outline-none cursor-pointer">
                 <option value="" class="bg-dark-900 text-white" data-i18n="chat_provider_auto">Automático (Padrão)</option>
-                <option value="local" class="bg-dark-900 text-white">Local (llama-server GGUF)</option>
-                <option value="claude" class="bg-dark-900 text-white">Anthropic Claude</option>
-                <option value="gemini" class="bg-dark-900 text-white">Google Gemini</option>
-                <option value="openai" class="bg-dark-900 text-white">OpenAI GPT</option>
+                <option value="local" class="bg-dark-900 text-white" data-i18n="opt_provider_local">Local (llama-server GGUF)</option>
+                <option value="claude" class="bg-dark-900 text-white" data-i18n="opt_provider_claude">Anthropic Claude</option>
+                <option value="gemini" class="bg-dark-900 text-white" data-i18n="opt_provider_gemini">Google Gemini</option>
+                <option value="openai" class="bg-dark-900 text-white" data-i18n="opt_provider_openai">OpenAI GPT</option>
               </select>
             </div>
             <button onclick="clearChat()" class="text-xs bg-dark-900 hover:bg-dark-800 text-slate-400 hover:text-white px-3 py-2 rounded-xl border border-white/5 transition flex items-center gap-1">
@@ -327,7 +326,7 @@
           <!-- Input form -->
           <form id="chat-form" class="flex gap-2 items-end">
             <div class="relative flex-1">
-              <textarea id="chat-input" rows="1" placeholder="Envie uma mensagem de teste para o modelo (Shift+Enter para pular linha, Enter para enviar)..."
+              <textarea id="chat-input" rows="1" data-i18n-ph="ph_chat_input" placeholder="Envie uma mensagem de teste para o modelo (Shift+Enter para pular linha, Enter para enviar)..."
                 class="w-full bg-dark-900/90 border border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none max-h-36 min-h-[48px] shadow-inner"></textarea>
             </div>
             <button type="button" id="chat-stop-btn" onclick="stopChatStream()" class="hidden h-12 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-900/40">
@@ -359,15 +358,14 @@
           <button onclick="modelTab('hf')" id="tab-btn-hf" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white" data-i18n="models_tab_hf">
             🤗 Buscar no Hugging Face
           </button>
-          <button onclick="modelTab('downloads')" id="tab-btn-downloads" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5">
-            📥 Downloads <span id="download-count-badge" class="badge bg-slate-800 text-slate-400">0</span>
+          <button onclick="modelTab('downloads')" id="tab-btn-downloads" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5">📥 <span data-i18n="tab_downloads">Downloads</span> <span id="download-count-badge" class="badge bg-slate-800 text-slate-400">0</span>
           </button>
         </div>
 
         <!-- TAB: LOCAL MODELS -->
         <div id="model-tab-local" class="space-y-4">
           <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400" id="local-models-count">Carregando modelos locais...</span>
+            <span class="text-xs text-slate-400" id="local-models-count"><span data-i18n="models_loading">Carregando modelos locais...</span></span>
             <button onclick="loadLocalModels()" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium" data-i18n="models_refresh">Atualizar lista</button>
           </div>
           <div class="glass-card overflow-hidden">
@@ -537,11 +535,11 @@
               <tr>
                 <th class="px-4 py-3 text-left">#</th>
                 <th class="px-4 py-3 text-left" data-i18n="users_th_username">Usuário</th>
-                <th class="px-4 py-3 text-right">Requisições</th>
+                <th class="px-4 py-3 text-right" data-i18n="th_reqs">Requisições</th>
                 <th class="px-4 py-3 text-right" data-i18n="reports_th_tokens_total">Tokens (Total)</th>
-                <th class="px-4 py-3 text-right">Prompt</th>
-                <th class="px-4 py-3 text-right">Completion</th>
-                <th class="px-4 py-3 text-right">Erros</th>
+                <th class="px-4 py-3 text-right" data-i18n="th_prompt">Prompt</th>
+                <th class="px-4 py-3 text-right" data-i18n="th_completion">Completion</th>
+                <th class="px-4 py-3 text-right" data-i18n="th_errors">Erros</th>
                 <th class="px-4 py-3 text-right" data-i18n="reports_th_avg_lat">Lat. Média</th>
               </tr>
             </thead>
@@ -569,10 +567,10 @@
             <div>
               <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="settings_label_default_provider">Provedor Padrão (DEFAULT_PROVIDER)</label>
               <select id="cfg-default-provider" class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
-                <option value="local">local (llama-server / Modelos GGUF Locais)</option>
-                <option value="claude">claude (Anthropic Claude API)</option>
-                <option value="gemini">gemini (Google Gemini API)</option>
-                <option value="openai">openai (OpenAI GPT API)</option>
+                <option value="local" data-i18n="opt_provider_local_desc">local (llama-server / Modelos GGUF Locais)</option>
+                <option value="claude" data-i18n="opt_provider_claude_desc">claude (Anthropic Claude API)</option>
+                <option value="gemini" data-i18n="opt_provider_gemini_desc">gemini (Google Gemini API)</option>
+                <option value="openai" data-i18n="opt_provider_openai_desc">openai (OpenAI GPT API)</option>
               </select>
               <p class="text-[11px] text-slate-400 mt-1" data-i18n="settings_hint_default_provider">Usado automaticamente quando sistemas externos não especificam o modelo ou provedor.</p>
             </div>
@@ -586,32 +584,32 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Anthropic API Key</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_anthropic_key">Anthropic API Key</label>
                 <input id="cfg-anthropic-key" type="password" placeholder="sk-ant-..."
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Claude Model</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_claude_model">Claude Model</label>
                 <input id="cfg-claude-model" type="text" placeholder="claude-3-5-sonnet-20241022"
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Google Gemini API Key</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_gemini_key">Google Gemini API Key</label>
                 <input id="cfg-gemini-key" type="password" placeholder="AIzaSy..."
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Gemini Model</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_gemini_model">Gemini Model</label>
                 <input id="cfg-gemini-model" type="text" placeholder="gemini-1.5-flash"
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">OpenAI API Key</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_openai_key">OpenAI API Key</label>
                 <input id="cfg-openai-key" type="password" placeholder="sk-proj-..."
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">OpenAI Model</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_openai_model">OpenAI Model</label>
                 <input id="cfg-openai-model" type="text" placeholder="gpt-4o-mini"
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
@@ -626,7 +624,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">MODEL_URL (Servidor LLM)</label>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="lbl_model_url">MODEL_URL (Servidor LLM)</label>
                 <input id="cfg-model-url" type="text" placeholder="http://127.0.0.1:8085"
                   class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
               </div>
@@ -783,18 +781,18 @@
       <input type="hidden" id="mc-filename">
       <div>
         <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="modal_cfg_name">Nome / Apelido</label>
-        <input id="mc-name" type="text" placeholder="Ex: Llama 3 8B"
+        <input id="mc-name" type="text" data-i18n-ph="ph_model_name" placeholder="Ex: Llama 3 8B"
           class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
       </div>
       <div class="grid grid-cols-3 gap-2.5">
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="modal_cfg_ctx">Contexto</label>
           <select id="mc-ctx" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
-            <option value="4096">4096 tokens</option>
-            <option value="8192">8192 tokens</option>
-            <option value="16384">16384 tokens</option>
-            <option value="32768">32768 tokens</option>
-            <option value="65536">65536 tokens</option>
+            <option value="4096" data-i18n="opt_ctx_4k">4096 tokens</option>
+            <option value="8192" data-i18n="opt_ctx_8k">8192 tokens</option>
+            <option value="16384" data-i18n="opt_ctx_16k">16384 tokens</option>
+            <option value="32768" data-i18n="opt_ctx_32k">32768 tokens</option>
+            <option value="65536" data-i18n="opt_ctx_64k">65536 tokens</option>
           </select>
         </div>
         <div>
@@ -805,7 +803,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" data-i18n="modal_cfg_threads">Threads CPU</label>
-          <input id="mc-threads" type="number" min="0" max="128" step="1" placeholder="0 (Auto)"
+          <input id="mc-threads" type="number" min="0" max="128" step="1" data-i18n-ph="ph_threads_auto" placeholder="0 (Auto)"
             class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
           <span class="text-[9px] text-slate-500" data-i18n="modal_cfg_threads_hint">0 = Global</span>
         </div>
@@ -857,7 +855,7 @@ document.getElementById('login-form').addEventListener('submit', async e => {
     localStorage.setItem('orion_light_token', _token);
     await showApp();
   } catch {
-    errEl.textContent = 'Erro de conexão com o servidor';
+    errEl.textContent = t('login_err_net');
     errEl.classList.remove('hidden');
   }
 });
@@ -1181,14 +1179,14 @@ async function loadStatus() {
     if (headerVer) headerVer.textContent = sysVersion;
 
     document.getElementById('slots-indicator').textContent =
-      `${statusData.active_slots}/${statusData.parallel_slots} slots ativos`;
+      `${statusData.active_slots}/${statusData.parallel_slots} ${t('slots_active')}`;
 
-    const activeModelDisplay = statusData.active_model || (statusData.models && statusData.models.length ? statusData.models[0].id : 'Nenhum ativado');
+    const activeModelDisplay = statusData.active_model || (statusData.models && statusData.models.length ? statusData.models[0].id : t('none_activated'));
     const cards = [
       { label: 'Versão do Compilado', value: sysVersion, sub: 'Lido de VERSION' },
-      { label: 'Backend Local (LLM)', value: statusData.llm_reachable ? '✅ Conectado' : '⚠️ Não Detectado', sub: statusData.model_url },
+      { label: 'Backend Local (LLM)', value: statusData.llm_reachable ? t('status_connected') : t('status_not_detected'), sub: statusData.model_url },
       { label: 'Slots Simultâneos', value: `${statusData.parallel_slots} slots`, sub: `${statusData.active_slots} em execução` },
-      { label: 'Modelo Local Ativo', value: activeModelDisplay, sub: statusData.active_filename ? `Contexto: ${statusData.active_context || 8192}` : 'Central de Modelos' },
+      { label: 'Modelo Local Ativo', value: activeModelDisplay, sub: statusData.active_filename ? `${t('context_label')}: ${statusData.active_context || 8192}` : t('nav_models') },
       { label: 'Provedor Padrão', value: (providersData ? providersData.default_provider : 'local').toUpperCase(), sub: 'Configurado no .env' },
     ];
 
@@ -1519,7 +1517,7 @@ document.getElementById('chat-form').addEventListener('submit', async e => {
           </div>
         </div>
       `;
-      metaEl.innerHTML = `<span class="text-rose-400 font-semibold">● Erro</span>`;
+      metaEl.innerHTML = `<span class="text-rose-400 font-semibold">${t('badge_error')}</span>`;
     }
   } finally {
     setChatStreaming(false);
@@ -1693,8 +1691,8 @@ function renderReportsCharts(data) {
         data: {
           labels: labels,
           datasets: [
-            { label: 'Sucesso', data: successReqs, backgroundColor: '#34d399', borderRadius: 4 },
-            { label: 'Erros', data: errorReqs, backgroundColor: '#f43f5e', borderRadius: 4 },
+            { label: t('chart_label_success'), data: successReqs, backgroundColor: '#34d399', borderRadius: 4 },
+            { label: t('chart_label_errors'), data: errorReqs, backgroundColor: '#f43f5e', borderRadius: 4 },
           ]
         },
         options: {
@@ -1974,7 +1972,7 @@ async function viewHfFiles(repoId) {
         </td>
       </tr>`).join('');
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-rose-400 text-xs">Erro ao carregar arquivos: ${esc(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-rose-400 text-xs">${t('error_loading_files', { err: esc(err.message) })}</td></tr>`;
   }
 }
 
