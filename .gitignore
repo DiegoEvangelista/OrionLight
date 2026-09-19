@@ -52,3 +52,7 @@ models/*.bin
 *.swo
 .DS_Store
 Thumbs.db
+
+# Session tracking & local notes
+diario.md
+scratch/
