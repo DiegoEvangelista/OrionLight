@@ -48,47 +48,74 @@ Experience sovereign AI management with a modern, glassmorphic dark-mode web con
 
 <div align="center">
 
-### 1. Real-Time Telemetry & Hardware Observability
+### 1. Sovereign Authentication & Live Language Switcher
+*Zero-dependency JWT authentication with immediate multi-language switching (PT-BR, EN-US, ES-ES).*
+
+<p align="center">
+  <img src="docs/screenshots/01-login.png" alt="Orion Light Login Screen" width="95%" />
+</p>
+
+---
+
+### 2. Real-Time Telemetry & Hardware Observability
 *Sub-second host CPU, memory, process footprint, slot allocation, and throughput tracking.*
 
 <p align="center">
-  <img src="docs/screenshots/01-telemetry-overview.png" alt="Orion Light Real-Time Telemetry" width="95%" />
+  <img src="docs/screenshots/02-telemetry-overview.png" alt="Orion Light Real-Time Telemetry" width="95%" />
 </p>
 
 ---
 
-### 2. High-Performance Test Playground
-*Interactive prompt testing with live TTFT (Time to First Token), streaming tokens/sec, RAG grounding, and multimodal file attachments.*
+### 3. High-Performance Test Playground
+*Interactive prompt testing with live TTFT (Time to First Token), streaming tokens/sec, provider switching, and conversation logs.*
 
 <p align="center">
-  <img src="docs/screenshots/02-chat-playground.png" alt="Orion Light Test Playground" width="95%" />
+  <img src="docs/screenshots/03-chat-playground.png" alt="Orion Light Test Playground" width="95%" />
 </p>
 
 ---
 
-### 3. Integrated Model Hub & Hugging Face Downloader
+### 4. Integrated Model Hub & Hugging Face Downloader
 *Search the entire Hugging Face GGUF catalog, download models in background with live speed/ETA tracking, and swap active models with zero downtime.*
 
 <p align="center">
-  <img src="docs/screenshots/03-model-hub.png" alt="Orion Light Model Hub" width="95%" />
+  <img src="docs/screenshots/04-model-hub.png" alt="Orion Light Model Hub" width="95%" />
 </p>
 
 ---
 
-### 4. Historical Telemetry & Consumption Auditing
-*Comprehensive audit log of all inference requests, token usage trends, latency distributions, and CSV export.*
+### 5. Execution Parameters & Context Window Allocation
+*Fine-grained tuning per model: context window (4K to 64K), CPU thread binding, GPU offloading layers, and warm cache strategy.*
 
 <p align="center">
-  <img src="docs/screenshots/04-reports-metrics.png" alt="Orion Light Historical Reports" width="95%" />
+  <img src="docs/screenshots/05-model-config.png" alt="Orion Light Model Parameters Config" width="95%" />
 </p>
 
 ---
 
-### 5. Enterprise Access Control & Long-Lived API Keys
+### 6. Historical Telemetry & Consumption Auditing
+*Comprehensive audit log of all inference requests, token usage trends, latency distributions, and instant CSV export.*
+
+<p align="center">
+  <img src="docs/screenshots/06-reports-metrics.png" alt="Orion Light Historical Reports" width="95%" />
+</p>
+
+---
+
+### 7. Enterprise Access Control & Long-Lived API Keys
 *Manage user accounts and generate 365-day Bearer API keys for instant microservice, agent, and backend integration.*
 
 <p align="center">
-  <img src="docs/screenshots/05-users-api-keys.png" alt="Orion Light Users and API Keys" width="95%" />
+  <img src="docs/screenshots/07-users-api-keys.png" alt="Orion Light Users and API Keys" width="95%" />
+</p>
+
+---
+
+### 8. System Settings & Multi-Provider Cloud Gateway
+*Configure hybrid cloud routing with Anthropic Claude, Google Gemini, and OpenAI GPT alongside your local llama-server engine.*
+
+<p align="center">
+  <img src="docs/screenshots/08-settings-configuration.png" alt="Orion Light Settings and Configuration" width="95%" />
 </p>
 
 </div>
