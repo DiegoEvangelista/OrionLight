@@ -40,6 +40,61 @@
 
 ---
 
+---
+
+## Dashboard Showcase
+
+Experience sovereign AI management with a modern, glassmorphic dark-mode web console.
+
+<div align="center">
+
+### 1. Real-Time Telemetry & Hardware Observability
+*Sub-second host CPU, memory, process footprint, slot allocation, and throughput tracking.*
+
+<p align="center">
+  <img src="docs/screenshots/01-telemetry-overview.png" alt="Orion Light Real-Time Telemetry" width="95%" />
+</p>
+
+---
+
+### 2. High-Performance Test Playground
+*Interactive prompt testing with live TTFT (Time to First Token), streaming tokens/sec, RAG grounding, and multimodal file attachments.*
+
+<p align="center">
+  <img src="docs/screenshots/02-chat-playground.png" alt="Orion Light Test Playground" width="95%" />
+</p>
+
+---
+
+### 3. Integrated Model Hub & Hugging Face Downloader
+*Search the entire Hugging Face GGUF catalog, download models in background with live speed/ETA tracking, and swap active models with zero downtime.*
+
+<p align="center">
+  <img src="docs/screenshots/03-model-hub.png" alt="Orion Light Model Hub" width="95%" />
+</p>
+
+---
+
+### 4. Historical Telemetry & Consumption Auditing
+*Comprehensive audit log of all inference requests, token usage trends, latency distributions, and CSV export.*
+
+<p align="center">
+  <img src="docs/screenshots/04-reports-metrics.png" alt="Orion Light Historical Reports" width="95%" />
+</p>
+
+---
+
+### 5. Enterprise Access Control & Long-Lived API Keys
+*Manage user accounts and generate 365-day Bearer API keys for instant microservice, agent, and backend integration.*
+
+<p align="center">
+  <img src="docs/screenshots/05-users-api-keys.png" alt="Orion Light Users and API Keys" width="95%" />
+</p>
+
+</div>
+
+---
+
 ## System Architecture
 
 ```
