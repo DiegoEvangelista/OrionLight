@@ -1,0 +1,2261 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orion Light — Sovereign AI Platform</title>
+  <link rel="icon" type="image/png" href="/dashboard/orion_logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/dashboard/i18n.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+            },
+            dark: {
+              950: '#06090e',
+              900: '#0b0f17',
+              850: '#101623',
+              800: '#172033',
+              700: '#1e293b',
+              600: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #06090e;
+      color: #e2e8f0;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: rgba(16, 22, 35, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+    }
+    .glass-card:hover {
+      border-color: rgba(6, 182, 212, 0.25);
+    }
+    .nav-btn {
+      color: #94a3b8;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      background: rgba(30, 41, 59, 0.6);
+      color: #f8fafc;
+    }
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+      color: #38bdf8;
+      font-weight: 600;
+      border-left: 3px solid #06b6d4;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f17; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-200 antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+
+<!-- ════════════════════ LOGIN ════════════════════ -->
+<div id="view-login" class="hidden min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+  <!-- Glowing Background Orbs -->
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="glass-card p-8 w-full max-w-md relative z-10 shadow-2xl border border-white/10">
+    <div class="text-center mb-8">
+      <div class="flex justify-center mb-3">
+        <img src="/dashboard/orion_logo.png" alt="Orion" class="h-16 w-auto drop-shadow-[0_0_20px_rgba(6,182,212,0.35)]">
+      </div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
+        Orion <span class="text-cyan-400 font-light">Light</span>
+      </h1>
+      <p data-i18n="login_subtitle" class="text-slate-400 text-xs mt-1.5 font-medium tracking-wide uppercase">Plataforma de Inteligência & Gateway de Modelos</p>
+    </div>
+
+        <!-- i18n Language Switcher -->
+    <div class="flex items-center justify-center gap-1.5 mb-5 bg-dark-900/60 p-1 rounded-xl border border-white/5">
+      <button type="button" onclick="setLanguage('pt')" class="btn-lang-pt px-3 py-1 text-xs rounded-lg border transition font-medium text-slate-400 border-transparent">Português 🇧🇷</button>
+      <button type="button" onclick="setLanguage('en')" class="btn-lang-en px-3 py-1 text-xs rounded-lg border transition font-medium text-slate-400 border-transparent">English 🇺🇸</button>
+      <button type="button" onclick="setLanguage('es')" class="btn-lang-es px-3 py-1 text-xs rounded-lg border transition font-medium text-slate-400 border-transparent">Español 🇪🇸</button>
+    </div>
+
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label data-i18n="login_user_label" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Usuário</label>
+        <input id="login-user" type="text" autocomplete="username" required
+          class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+          placeholder="admin">
+      </div>
+      <div>
+        <label data-i18n="login_pass_label" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Senha</label>
+        <input id="login-pass" type="password" autocomplete="current-password" required
+          class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+          placeholder="••••••••">
+      </div>
+      <p id="login-err" class="text-rose-400 text-xs bg-rose-950/40 border border-rose-800/40 p-2.5 rounded-lg hidden"></p>
+      <button type="submit"
+        class="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/35 transition duration-200">
+        Autenticar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════ APP ════════════════════ -->
+<div id="view-app" class="hidden min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-dark-900/90 backdrop-blur-md border-b border-white/5 px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+      <img src="/dashboard/orion_logo.png" alt="Orion" class="h-8 w-auto">
+      <div class="flex items-baseline gap-2">
+        <span class="font-extrabold text-base tracking-tight text-white">Orion <span class="text-cyan-400 font-light">Light</span></span>
+        <span id="header-version" class="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded font-mono font-semibold">v0.0.4</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Real-time Hardware Micro-Chips -->
+      <div id="header-realtime-chips" class="hidden md:flex items-center gap-2 text-xs font-mono">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-dark-800/80 border border-white/5 text-slate-300">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold">CPU</span>
+          <span id="header-cpu-val" class="font-bold text-cyan-400 text-[11px]">--%</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-dark-800/80 border border-white/5 text-slate-300">
+          <span class="text-slate-500 text-[10px] uppercase font-semibold">RAM</span>
+          <span id="header-ram-val" class="font-bold text-indigo-400 text-[11px]">-- GB</span>
+        </div>
+        <div id="header-llm-chip" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-dark-800/80 border border-white/5 text-slate-300">
+          <span id="header-llm-dot" class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+          <span id="header-llm-text" class="text-slate-300 text-[11px]">LLM</span>
+        </div>
+      </div>
+            <!-- i18n Selector -->
+      <div class="flex items-center gap-1 bg-dark-800/80 border border-white/5 rounded-lg p-0.5 text-xs">
+        <button type="button" onclick="setLanguage('pt')" class="btn-lang-pt px-2 py-0.5 rounded text-[11px] font-semibold border transition text-slate-400 border-transparent" title="Português">PT</button>
+        <button type="button" onclick="setLanguage('en')" class="btn-lang-en px-2 py-0.5 rounded text-[11px] font-semibold border transition text-slate-400 border-transparent" title="English">EN</button>
+        <button type="button" onclick="setLanguage('es')" class="btn-lang-es px-2 py-0.5 rounded text-[11px] font-semibold border transition text-slate-400 border-transparent" title="Español">ES</button>
+      </div>
+
+      <div id="slots-badge" class="px-2.5 py-1 rounded-full bg-dark-800 border border-slate-700/60 text-xs text-slate-300 font-mono">
+        <span id="slots-indicator">0/0 slots</span>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="header-user" class="font-semibold text-slate-200"></span>
+      </div>
+      <button onclick="logout()" data-i18n="btn_logout" class="text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-3 py-1.5 rounded-lg font-semibold transition border border-red-500/20">
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 min-h-0">
+
+    <!-- Sidebar -->
+    <nav class="w-56 bg-dark-900/70 border-r border-white/5 p-3 flex flex-col gap-1.5 shrink-0">
+      <button onclick="nav('status')"   id="nav-status"   class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span data-i18n="nav_status">Status Geral</span></button>
+      <button onclick="nav('chat')"     id="nav-chat"     class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span data-i18n="nav_chat">Playground de Teste</span></button>
+      <button onclick="nav('models')"   id="nav-models"   class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg><span data-i18n="nav_models">Gestão de Modelos</span></button>
+      <button onclick="nav('reports')"  id="nav-reports"  class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span data-i18n="nav_reports">Relatórios & Métricas</span></button>
+      <button onclick="nav('users')"    id="nav-users"    class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg><span data-i18n="nav_users">Usuários & API</span></button>
+      <button onclick="nav('settings')" id="nav-settings" class="nav-btn text-left px-3.5 py-2.5 rounded-xl text-sm flex items-center gap-2.5">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span data-i18n="nav_settings">Configurações</span></button>
+    </nav>
+
+    <!-- Content -->
+    <main class="flex-1 p-6 overflow-auto bg-dark-950">
+
+      <!-- STATUS -->
+      <section id="sec-status" class="hidden max-w-6xl mx-auto space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span data-i18n="status_title">Telemetria & Status</span>
+            </h2>
+            <p data-i18n="status_subtitle" class="text-xs text-slate-400 mt-0.5">Visão geral do gateway, recursos de hardware e throughput de inferência em tempo real.</p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-dark-900 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span data-i18n="realtime_badge" class="tracking-wide">TEMPO REAL</span>
+              <span id="live-indicator-time" class="text-[10px] text-slate-400 font-mono pl-1.5 border-l border-white/10">--:--:--</span>
+            </div>
+            <button id="btn-toggle-live" onclick="toggleRealtimeMetrics()" class="text-xs bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/10 px-3 py-1.5 rounded-xl font-medium transition shadow-sm" title="Pausar ou Retomar atualização contínua">
+              ⏸️ Pausar
+            </button>
+          </div>
+        </div>
+
+        <!-- RECURSOS DE HARDWARE E PROCESSO EM TEMPO REAL -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+              <span data-i18n="status_hw_title">Recursos de Hardware & Processo LLM</span> (Tempo Real)
+            </h3>
+            <span class="text-[10px] text-slate-500 mono">Frequência: 2s</span>
+          </div>
+          <div id="hardware-metrics-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </div>
+
+        <div id="status-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+
+        <!-- Quick Telemetry & Indicators -->
+        <div class="glass-card p-5 border border-white/5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span data-i18n="status_throughput_title">Throughput & Performance (Tempo Real / Hoje)</span>
+              </h3>
+              <p data-i18n="status_throughput_subtitle" class="text-xs text-slate-400">Taxa de sucesso, latência e consumo de tokens computados em tempo real.</p>
+            </div>
+            <button onclick="nav('reports')" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition">
+              <span data-i18n="status_view_reports">Ver Histórico Completo por Períodos →</span>
+            </button>
+          </div>
+          <div id="status-telemetry-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </div>
+
+        <!-- Quick Playground Callout -->
+        <div class="glass-card p-4 border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 via-dark-900 to-indigo-950/20 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+              💬
+            </div>
+            <div>
+              <p data-i18n="status_play_title" class="text-sm font-bold text-white">Playground de Teste do Modelo</p>
+              <p data-i18n="status_play_desc" class="text-xs text-slate-400">Valide imediatamente as respostas do modelo ativo, latência e comportamento sob o prompt Orion.</p>
+            </div>
+          </div>
+          <button onclick="nav('chat')" class="text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-cyan-900/30">
+            <span data-i18n="status_test_btn">Testar Modelo Agora →</span>
+          </button>
+        </div>
+
+        <div>
+          <h3 data-i18n="status_providers_title" class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Provedores de Inferência</h3>
+          <div id="providers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- CHAT PLAYGROUND -->
+      <section id="sec-chat" class="hidden max-w-5xl mx-auto h-[calc(100vh-7.5rem)] flex flex-col">
+        <!-- Top bar -->
+        <div class="glass-card px-5 py-3.5 mb-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-black text-sm shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+              Ω
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                Playground de Teste
+                <span class="badge bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[10px]">Orion Sovereign</span>
+              </h2>
+              <p class="text-[11px] text-slate-400">Verifique respostas, latência (TTFT) e tokens gerados em streaming direto.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5 bg-dark-900 border border-slate-800 rounded-xl px-3 py-1.5">
+              <span class="text-[11px] text-slate-400 font-medium">Provedor:</span>
+              <select id="chat-provider" class="bg-transparent text-xs text-cyan-300 font-semibold focus:outline-none cursor-pointer">
+                <option value="" class="bg-dark-900 text-white">Automático (Padrão)</option>
+                <option value="local" class="bg-dark-900 text-white">Local (llama-server GGUF)</option>
+                <option value="claude" class="bg-dark-900 text-white">Anthropic Claude</option>
+                <option value="gemini" class="bg-dark-900 text-white">Google Gemini</option>
+                <option value="openai" class="bg-dark-900 text-white">OpenAI GPT</option>
+              </select>
+            </div>
+            <button onclick="clearChat()" class="text-xs bg-dark-900 hover:bg-dark-800 text-slate-400 hover:text-white px-3 py-2 rounded-xl border border-white/5 transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat health alert banner -->
+        <div id="chat-health-alert" class="hidden"></div>
+
+        <!-- Messages container -->
+        <div id="chat-messages" class="glass-card flex-1 overflow-y-auto p-5 space-y-4 min-h-0 border border-white/5">
+        </div>
+
+        <!-- Quick prompts + Input bar -->
+        <div class="mt-3 shrink-0 space-y-2">
+          <!-- Quick test pills -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 text-[11px]">
+            <span class="text-slate-500 shrink-0">Testes rápidos:</span>
+            <button type="button" onclick="sendQuickPrompt('Quem é você e qual sua missão?')" class="px-2.5 py-1 rounded-lg bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/5 hover:border-cyan-500/30 whitespace-nowrap transition" data-i18n="chat_quick_identity">✨ Identidade Orion</button>
+            <button type="button" onclick="sendQuickPrompt('Explique de forma técnica como funciona a interoperabilidade do Orion Light como gateway OpenAI-compatible para backends externos e sistemas legados.')" class="px-2.5 py-1 rounded-lg bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/5 hover:border-cyan-500/30 whitespace-nowrap transition" data-i18n="chat_quick_integration">🏥 Integração Backend / EHR</button>
+            <button type="button" onclick="sendQuickPrompt('Resolva com raciocínio lógico: em um estoque hospitalar há 120 frascos. Foram dispensados 35% pela manhã e 14 frascos à tarde. Quantos frascos restam no estoque?')" class="px-2.5 py-1 rounded-lg bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/5 hover:border-cyan-500/30 whitespace-nowrap transition" data-i18n="chat_quick_reasoning">🧠 Raciocínio Clínico</button>
+            <button type="button" onclick="sendQuickPrompt('Teste de velocidade e fluência: forneça uma lista com 5 boas práticas de engenharia de software para sistemas de alta disponibilidade em saúde.')" class="px-2.5 py-1 rounded-lg bg-dark-900 hover:bg-dark-800 text-slate-300 border border-white/5 hover:border-cyan-500/30 whitespace-nowrap transition" data-i18n="chat_quick_throughput">⚡ Teste de Throughput</button>
+          </div>
+
+          <!-- Input form -->
+          <form id="chat-form" class="flex gap-2 items-end">
+            <div class="relative flex-1">
+              <textarea id="chat-input" rows="1" placeholder="Envie uma mensagem de teste para o modelo (Shift+Enter para pular linha, Enter para enviar)..."
+                class="w-full bg-dark-900/90 border border-slate-700/80 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none max-h-36 min-h-[48px] shadow-inner"></textarea>
+            </div>
+            <button type="button" id="chat-stop-btn" onclick="stopChatStream()" class="hidden h-12 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-900/40">
+              <span class="w-2.5 h-2.5 bg-white rounded-sm inline-block"></span>
+              Parar
+            </button>
+            <button type="submit" id="chat-send-btn" class="h-12 px-6 rounded-2xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-semibold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/30 disabled:opacity-50 disabled:cursor-not-allowed">
+              <span>Enviar</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- MODELS -->
+      <section id="sec-models" class="hidden max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white" data-i18n="models_title">Central de Modelos</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Explore o Hugging Face, baixe modelos GGUF locais e gerencie provedores externos.</p>
+          </div>
+        </div>
+
+        <!-- Model Navigation Tabs -->
+        <div class="flex gap-2 border-b border-slate-800 mb-6 pb-2">
+          <button onclick="modelTab('local')" id="tab-btn-local" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30">
+            💾 Modelos Locais
+          </button>
+          <button onclick="modelTab('hf')" id="tab-btn-hf" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white">
+            🤗 Buscar no Hugging Face
+          </button>
+          <button onclick="modelTab('downloads')" id="tab-btn-downloads" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-1.5">
+            📥 Downloads <span id="download-count-badge" class="badge bg-slate-800 text-slate-400">0</span>
+          </button>
+        </div>
+
+        <!-- TAB: LOCAL MODELS -->
+        <div id="model-tab-local" class="space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-400" id="local-models-count">Carregando modelos locais...</span>
+            <button onclick="loadLocalModels()" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Atualizar lista</button>
+          </div>
+          <div class="glass-card overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-dark-900/80 text-[11px] text-slate-400 uppercase tracking-wider font-semibold border-b border-white/5">
+                <tr>
+                  <th class="px-4 py-3 text-left">Modelo / Arquivo GGUF</th>
+                  <th class="px-4 py-3 text-center">Status</th>
+                  <th class="px-4 py-3 text-left">Parâmetros (Ctx / GPU)</th>
+                  <th class="px-4 py-3 text-left">Estratégia</th>
+                  <th class="px-4 py-3 text-left">Tamanho</th>
+                  <th class="px-4 py-3 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="local-models-body" class="divide-y divide-white/5"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB: HUGGING FACE SEARCH -->
+        <div id="model-tab-hf" class="hidden space-y-4">
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <input id="hf-search-query" type="text" placeholder="Buscar modelos GGUF (ex: Qwen, MedLlama, BioMistral, Llama-3.2)..."
+                onkeydown="if (event.key === 'Enter') searchHF()"
+                class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition">
+            </div>
+            <button onclick="searchHF()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-cyan-500/20 transition">
+              Pesquisar
+            </button>
+          </div>
+
+          <div id="hf-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- TAB: DOWNLOADS MONITOR -->
+        <div id="model-tab-downloads" class="hidden space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-400">Progresso de downloads assíncronos</span>
+            <button onclick="loadDownloads()" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Recarregar</button>
+          </div>
+          <div id="downloads-list" class="space-y-3"></div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="sec-users" class="hidden max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white" data-i18n="users_title">Usuários & Chaves de API</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Gerencie usuários, operadores ou chaves de integração backend (sistemas externos/EHR).</p>
+          </div>
+          <button onclick="openCreateUser()"
+            class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-cyan-500/20 transition">
+            + Novo Usuário
+          </button>
+        </div>
+        <div class="glass-card overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-dark-900/80 text-[11px] text-slate-400 uppercase tracking-wider font-semibold border-b border-white/5">
+              <tr>
+                <th class="px-4 py-3 text-left">Usuário</th>
+                <th class="px-4 py-3 text-left">Permissão</th>
+                <th class="px-4 py-3 text-left">API Key</th>
+                <th class="px-4 py-3 text-left">Criado em</th>
+                <th class="px-4 py-3 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-body" class="divide-y divide-white/5"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="sec-reports" class="hidden max-w-6xl mx-auto space-y-6">
+        <!-- Header + period selector -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span class="text-amber-400">📊</span> Relatórios &amp; Consumo
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Histórico completo de tokens, latência e usuários. Exportável em CSV.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <select id="rpt-period" onchange="loadReports()" class="bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              <option value="today">Hoje</option>
+              <option value="yesterday">Ontem</option>
+              <option value="7d" selected>Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
+              <option value="90d">Últimos 90 dias</option>
+            </select>
+            <button onclick="loadReports()" class="text-xs bg-dark-800 border border-slate-700 hover:bg-dark-700 text-white px-3 py-2 rounded-xl transition">↺ Atualizar</button>
+            <button onclick="exportCSV()" class="text-xs bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-300 px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Exportar CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div id="rpt-kpis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+
+        <!-- Charts grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Tokens por período -->
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Consumo de Tokens</p>
+                <p class="text-xl font-bold text-white mt-0.5"><span id="rpt-total-tokens-chart">—</span> <span class="text-xs text-slate-400 font-normal">tokens no período</span></p>
+              </div>
+              <div class="flex gap-2 text-[10px]">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>Prompt</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-400 inline-block"></span>Completion</span>
+              </div>
+            </div>
+            <div class="relative h-44 w-full">
+              <canvas id="chart-tokens"></canvas>
+            </div>
+          </div>
+
+          <!-- Requisições por período -->
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Requisições</p>
+                <p class="text-xl font-bold text-white mt-0.5"><span id="rpt-total-reqs-chart">—</span> <span class="text-xs text-slate-400 font-normal">requisições</span></p>
+              </div>
+              <div class="flex gap-2 text-[10px]">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>Sucesso</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span>Erro</span>
+              </div>
+            </div>
+            <div class="relative h-44 w-full">
+              <canvas id="chart-requests"></canvas>
+            </div>
+          </div>
+
+          <!-- Latência por período -->
+          <div class="glass-card p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Latência Média</p>
+                <p class="text-xl font-bold text-white mt-0.5"><span id="rpt-avg-lat-chart">—</span> <span class="text-xs text-slate-400 font-normal">ms (média período)</span></p>
+              </div>
+            </div>
+            <div class="relative h-44 w-full">
+              <canvas id="chart-latency-hist"></canvas>
+            </div>
+          </div>
+
+          <!-- Distribuição por provedor -->
+          <div class="glass-card p-5">
+            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-4">Distribuição por Provedor</p>
+            <div id="rpt-providers-chart" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- Top Users Table -->
+        <div class="glass-card overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+            <h3 class="text-sm font-bold text-white">Top Usuários por Consumo</h3>
+            <span class="text-[10px] text-slate-400 mono" id="rpt-period-label"></span>
+          </div>
+          <table class="w-full text-sm">
+            <thead class="bg-dark-900/80 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-4 py-3 text-left">#</th>
+                <th class="px-4 py-3 text-left">Usuário</th>
+                <th class="px-4 py-3 text-right">Requisições</th>
+                <th class="px-4 py-3 text-right">Tokens (Total)</th>
+                <th class="px-4 py-3 text-right">Prompt</th>
+                <th class="px-4 py-3 text-right">Completion</th>
+                <th class="px-4 py-3 text-right">Erros</th>
+                <th class="px-4 py-3 text-right">Lat. Média</th>
+              </tr>
+            </thead>
+            <tbody id="rpt-users-body" class="divide-y divide-white/5"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="sec-settings" class="hidden max-w-4xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white mb-1">Configurações do Sistema</h2>
+          <p class="text-xs text-slate-400">
+            Ajuste o roteamento, chaves de provedores externos e parâmetros do motor de inferência. As alterações são sincronizadas e persistidas automaticamente.
+          </p>
+        </div>
+
+        <form id="settings-form" class="space-y-6">
+          <!-- Grupo 1: Roteamento & Provedor Padrão -->
+          <div class="glass-card p-5 space-y-4">
+            <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Roteamento Padrão</h3>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Provedor Padrão (DEFAULT_PROVIDER)</label>
+              <select id="cfg-default-provider" class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                <option value="local">local (llama-server / Modelos GGUF Locais)</option>
+                <option value="claude">claude (Anthropic Claude API)</option>
+                <option value="gemini">gemini (Google Gemini API)</option>
+                <option value="openai">openai (OpenAI GPT API)</option>
+              </select>
+              <p class="text-[11px] text-slate-400 mt-1">Usado automaticamente quando sistemas externos não especificam o modelo ou provedor.</p>
+            </div>
+          </div>
+
+          <!-- Grupo 2: Provedores Externos & Chaves -->
+          <div class="glass-card p-5 space-y-4">
+            <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Chaves de API & Modelos de Provedores</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Anthropic API Key</label>
+                <input id="cfg-anthropic-key" type="password" placeholder="sk-ant-..."
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Claude Model</label>
+                <input id="cfg-claude-model" type="text" placeholder="claude-3-5-sonnet-20241022"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Google Gemini API Key</label>
+                <input id="cfg-gemini-key" type="password" placeholder="AIzaSy..."
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Gemini Model</label>
+                <input id="cfg-gemini-model" type="text" placeholder="gemini-1.5-flash"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">OpenAI API Key</label>
+                <input id="cfg-openai-key" type="password" placeholder="sk-proj-..."
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">OpenAI Model</label>
+                <input id="cfg-openai-model" type="text" placeholder="gpt-4o-mini"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+            </div>
+          </div>
+
+          <!-- Grupo 3: Motor Local & Limites de Contexto -->
+          <div class="glass-card p-5 space-y-4">
+            <div class="flex items-center gap-2 border-b border-white/5 pb-3">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Motor Local & Performance</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">MODEL_URL (Servidor LLM)</label>
+                <input id="cfg-model-url" type="text" placeholder="http://127.0.0.1:8085"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">CPU_THREADS (Threads p/ Inferência)</label>
+                <input id="cfg-cpu-threads" type="number" min="0" max="128" placeholder="4"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+                <span class="text-[10px] text-slate-500">Limite de threads em CPU para o llama.cpp (0 = auto).</span>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">PARALLEL_SLOTS (Concorrência)</label>
+                <input id="cfg-parallel-slots" type="number" min="1" max="64"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">MAX_CONTEXT_CHARS (Orçamento Chars)</label>
+                <input id="cfg-max-context" type="number" min="1000" step="1000"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">SEARCH_MAX_RESULTS (Web DuckDuckGo)</label>
+                <input id="cfg-search-results" type="number" min="1" max="20"
+                  class="w-full bg-dark-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" onclick="loadSettings()" class="border border-slate-700 hover:bg-dark-800 text-slate-300 px-5 py-2.5 rounded-xl text-sm font-medium transition">
+              Descartar Alterações
+            </button>
+            <button type="submit" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-lg shadow-cyan-500/20 transition">
+              Salvar Configurações
+            </button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════ MODAL: Arquivos do Repo HF ════════════════════ -->
+<div id="modal-hf-files" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="glass-card p-6 w-full max-w-2xl shadow-2xl border border-white/10 max-h-[85vh] flex flex-col">
+    <div class="flex justify-between items-center mb-3">
+      <div>
+        <h3 class="font-bold text-base text-white" id="hf-modal-title">Arquivos do Modelo</h3>
+        <p class="text-xs text-slate-400 mono" id="hf-modal-repo"></p>
+      </div>
+      <button onclick="closeModal('modal-hf-files')" class="text-slate-400 hover:text-white text-lg">✕</button>
+    </div>
+    <div class="flex-1 overflow-auto border border-white/5 rounded-xl mb-4">
+      <table class="w-full text-xs">
+        <thead class="bg-dark-900 text-slate-400 uppercase font-semibold sticky top-0 border-b border-white/5">
+          <tr>
+            <th class="px-3 py-2 text-left">Arquivo</th>
+            <th class="px-3 py-2 text-left">Quantização</th>
+            <th class="px-3 py-2 text-right">Tamanho</th>
+            <th class="px-3 py-2 text-center">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="hf-files-body" class="divide-y divide-white/5"></tbody>
+      </table>
+    </div>
+    <div class="flex justify-end">
+      <button onclick="closeModal('modal-hf-files')" class="px-4 py-2 text-xs text-slate-400 hover:text-white rounded-lg border border-slate-700">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ MODAL: Criar usuário ════════════════════ -->
+<div id="modal-create" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="glass-card p-6 w-full max-w-sm shadow-2xl border border-white/10">
+    <h3 class="font-bold text-base text-white mb-4">Novo Usuário</h3>
+    <form id="create-form" class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Usuário</label>
+        <input id="c-username" type="text" required
+          class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Senha</label>
+        <input id="c-password" type="password" required
+          class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Permissão (Role)</label>
+        <select id="c-role"
+          class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+          <option value="user">user</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+      <p id="c-err" class="text-rose-400 text-xs hidden"></p>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeModal('modal-create')"
+          class="flex-1 border border-slate-700 rounded-lg py-2 text-xs text-slate-300 hover:bg-dark-800">Cancelar</button>
+        <button type="submit"
+          class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg py-2 text-xs font-semibold">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════ MODAL: Senha ════════════════════ -->
+<div id="modal-passwd" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="glass-card p-6 w-full max-w-sm shadow-2xl border border-white/10">
+    <h3 class="font-bold text-base text-white mb-1">Alterar Senha</h3>
+    <p id="passwd-label" class="text-xs text-slate-400 mb-4"></p>
+    <form id="passwd-form" class="space-y-3">
+      <input id="p-password" type="password" placeholder="Nova senha" required
+        class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+      <p id="p-err" class="text-rose-400 text-xs hidden"></p>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeModal('modal-passwd')"
+          class="flex-1 border border-slate-700 rounded-lg py-2 text-xs text-slate-300 hover:bg-dark-800">Cancelar</button>
+        <button type="submit"
+          class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg py-2 text-xs font-semibold">Atualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════ MODAL: API Key ════════════════════ -->
+<div id="modal-apikey" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="glass-card p-6 w-full max-w-lg shadow-2xl border border-white/10">
+    <h3 class="font-bold text-base text-white mb-1">Chave de Integração (API Key)</h3>
+    <p class="text-xs text-amber-400 mb-3 font-medium">⚠️ Copie agora — esta chave não será exibida novamente.</p>
+    <div id="apikey-value" class="bg-dark-900 border border-slate-800 rounded-lg p-3 mono text-xs text-cyan-300 break-all mb-4 select-all"></div>
+    <div class="bg-dark-800 border border-white/5 rounded-lg p-3 text-xs text-slate-300 mb-4">
+      Adicione o header <code class="mono text-cyan-400">Authorization: Bearer &lt;chave&gt;</code> nas integrações com seus sistemas externos ou backend.
+    </div>
+    <div class="flex gap-3">
+      <button onclick="copyApiKey()"
+        class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg py-2 text-xs font-semibold">Copiar Chave</button>
+      <button onclick="closeModal('modal-apikey')"
+        class="flex-1 border border-slate-700 rounded-lg py-2 text-xs text-slate-300 hover:bg-dark-800">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ MODAL: Configurar Parâmetros do Modelo ════════════════════ -->
+<div id="modal-model-config" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="glass-card p-6 w-full max-w-md shadow-2xl border border-white/10">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h3 class="font-bold text-base text-white">Configurar Modelo Local</h3>
+        <p id="mc-filename-display" class="text-xs text-slate-400 mono truncate max-w-[280px]"></p>
+      </div>
+      <button onclick="closeModal('modal-model-config')" class="text-slate-400 hover:text-white text-lg">✕</button>
+    </div>
+    <form id="model-config-form" class="space-y-4">
+      <input type="hidden" id="mc-filename">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nome / Apelido</label>
+        <input id="mc-name" type="text" placeholder="Ex: Llama 3 8B"
+          class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+      </div>
+      <div class="grid grid-cols-3 gap-2.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Contexto</label>
+          <select id="mc-ctx" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+            <option value="4096">4096 tokens</option>
+            <option value="8192">8192 tokens</option>
+            <option value="16384">16384 tokens</option>
+            <option value="32768">32768 tokens</option>
+            <option value="65536">65536 tokens</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">GPU Layers</label>
+          <input id="mc-gpu" type="number" step="1"
+            class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+          <span class="text-[9px] text-slate-500">-1 p/ Auto</span>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Threads CPU</label>
+          <input id="mc-threads" type="number" min="0" max="128" step="1" placeholder="0 (Auto)"
+            class="w-full bg-dark-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+          <span class="text-[9px] text-slate-500">0 = Global</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Estratégia de Carga</label>
+        <select id="mc-strategy" class="w-full bg-dark-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+          <option value="keep_warm">🔥 Keep Warm (Permanece em VRAM/RAM)</option>
+          <option value="on_demand">⚡ On Demand (Sob Demanda)</option>
+        </select>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeModal('modal-model-config')"
+          class="flex-1 border border-slate-700 rounded-lg py-2 text-xs text-slate-300 hover:bg-dark-800">Cancelar</button>
+        <button type="submit"
+          class="flex-1 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white rounded-lg py-2 text-xs font-semibold">Salvar Parâmetros</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"
+  class="fixed bottom-6 right-6 bg-dark-800 border border-slate-700 text-white text-xs px-4 py-3 rounded-xl shadow-2xl opacity-0 pointer-events-none z-50 transition-opacity duration-300 flex items-center gap-2">
+</div>
+
+<script>
+let _token = localStorage.getItem('orion_light_token');
+let _passwdUserId = null;
+let _downloadsPollTimer = null;
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = document.getElementById('login-err');
+  errEl.classList.add('hidden');
+  const body = new URLSearchParams();
+  body.set('username', document.getElementById('login-user').value.trim());
+  body.set('password', document.getElementById('login-pass').value);
+  try {
+    const r = await fetch('/v1/auth/login', { method: 'POST', body });
+    if (!r.ok) {
+      errEl.textContent = (await r.json()).detail || 'Credenciais inválidas';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    const data = await r.json();
+    _token = data.access_token;
+    localStorage.setItem('orion_light_token', _token);
+    await showApp();
+  } catch {
+    errEl.textContent = 'Erro de conexão com o servidor';
+    errEl.classList.remove('hidden');
+  }
+});
+
+let _realtimeTimer = null;
+let _realtimeEnabled = true;
+let _currentSection = 'status';
+
+function logout() {
+  localStorage.removeItem('orion_light_token');
+  _token = null;
+  stopRealtimeMetricsLoop();
+  show('view-login');
+  hide('view-app');
+}
+
+function startRealtimeMetricsLoop() {
+  if (_realtimeTimer) clearInterval(_realtimeTimer);
+  updateRealtimeMetrics();
+  _realtimeTimer = setInterval(async () => {
+    if (!_token || !_realtimeEnabled) return;
+    if (document.visibilityState === 'hidden') return;
+    await updateRealtimeMetrics();
+  }, 2000);
+}
+
+function stopRealtimeMetricsLoop() {
+  if (_realtimeTimer) {
+    clearInterval(_realtimeTimer);
+    _realtimeTimer = null;
+  }
+}
+
+function toggleRealtimeMetrics() {
+  _realtimeEnabled = !_realtimeEnabled;
+  const btn = document.getElementById('btn-toggle-live');
+  if (btn) {
+    btn.innerHTML = _realtimeEnabled ? '⏸️ Pausar' : '▶️ Retomar';
+    btn.classList.toggle('text-emerald-400', !_realtimeEnabled);
+  }
+  if (_realtimeEnabled) {
+    updateRealtimeMetrics();
+  }
+}
+
+function formatUptime(sec) {
+  if (!sec || sec < 0) return '0s';
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+async function api(method, path, body) {
+  const opts = { method, headers: { Authorization: `Bearer ${_token}` } };
+  if (body !== undefined) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(path, opts);
+  if (r.status === 401) { logout(); return null; }
+  if (r.status === 204) return null;
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
+  return data;
+}
+
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+async function showApp() {
+  hide('view-login');
+  show('view-app');
+  try {
+    const me = await api('GET', '/v1/auth/me');
+    if (!me) return;
+    document.getElementById('header-user').textContent = me.username;
+  } catch { logout(); return; }
+  startRealtimeMetricsLoop();
+  nav('status');
+}
+
+const SECTIONS = ['status', 'chat', 'models', 'reports', 'users', 'settings'];
+function nav(name) {
+  _currentSection = name;
+  SECTIONS.forEach(n => {
+    const sEl = document.getElementById(`sec-${n}`);
+    const nEl = document.getElementById(`nav-${n}`);
+    if (sEl) sEl.classList.add('hidden');
+    if (nEl) nEl.classList.remove('active');
+  });
+  const activeSec = document.getElementById(`sec-${name}`);
+  const activeNav = document.getElementById(`nav-${name}`);
+  if (activeSec) activeSec.classList.remove('hidden');
+  if (activeNav) activeNav.classList.add('active');
+
+  if (name === 'status')   { loadStatus(); updateRealtimeMetrics(); }
+  if (name === 'chat')     initChat();
+  if (name === 'models')   { modelTab('local'); loadLocalModels(); }
+  if (name === 'reports')  setTimeout(() => loadReports(), 60);
+  if (name === 'users')    loadUsers();
+  if (name === 'settings') loadSettings();
+}
+
+// ── Tempo Real (Hardware & Telemetria) ────────────────────────────────────────
+async function updateRealtimeMetrics() {
+  if (!_token) return;
+  try {
+    const data = await api('GET', '/v1/metrics/realtime').catch(() => null);
+    if (!data) return;
+    renderRealtimeSnapshot(data);
+  } catch (err) {
+    console.debug('Realtime update err:', err);
+  }
+}
+
+function renderRealtimeSnapshot(data) {
+  const timeEl = document.getElementById('live-indicator-time');
+  if (timeEl) {
+    timeEl.textContent = new Date().toLocaleTimeString();
+  }
+
+  // Header Micro-Chips
+  const cpuVal = document.getElementById('header-cpu-val');
+  if (cpuVal && data.cpu) {
+    cpuVal.textContent = `${data.cpu.percent}%`;
+    cpuVal.className = `font-bold text-[11px] ${data.cpu.percent >= 85 ? 'text-rose-400' : data.cpu.percent >= 65 ? 'text-amber-400' : 'text-cyan-400'}`;
+  }
+  const ramVal = document.getElementById('header-ram-val');
+  if (ramVal && data.memory) {
+    ramVal.textContent = `${data.memory.used_gb} / ${data.memory.total_gb} GB`;
+    ramVal.className = `font-bold text-[11px] ${data.memory.percent >= 85 ? 'text-rose-400' : data.memory.percent >= 70 ? 'text-amber-400' : 'text-indigo-400'}`;
+  }
+  const llmDot = document.getElementById('header-llm-dot');
+  const llmTxt = document.getElementById('header-llm-text');
+  if (llmDot && llmTxt && data.llm_process) {
+    const p = data.llm_process;
+    if (p.is_running && p.reachable) {
+      llmDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+      llmTxt.textContent = `LLM Online (${p.rss_gb} GB)`;
+      llmTxt.className = 'text-emerald-300 text-[11px] font-semibold';
+    } else if (p.is_running) {
+      llmDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse';
+      llmTxt.textContent = `LLM Iniciando...`;
+      llmTxt.className = 'text-amber-300 text-[11px] font-semibold';
+    } else {
+      llmDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500';
+      llmTxt.textContent = `LLM Offline`;
+      llmTxt.className = 'text-rose-400 text-[11px] font-semibold';
+    }
+  }
+  const slotsInd = document.getElementById('slots-indicator');
+  if (slotsInd && data.llm_process) {
+    slotsInd.textContent = `${data.llm_process.active_slots}/${data.llm_process.parallel_slots} slots ativos`;
+  }
+
+  // Se estiver na aba de Status Geral, atualiza os gauges de hardware e throughput
+  if (_currentSection === 'status') {
+    renderHardwareMetrics(data);
+    renderRealtimeTelemetry(data.telemetry);
+  }
+
+  // Se estiver na Central de Modelos, atualiza os downloads ativos em tempo real
+  if (_currentSection === 'models' && data.telemetry && data.telemetry.active_downloads) {
+    const badge = document.getElementById('download-count-badge');
+    if (badge) badge.textContent = data.telemetry.active_downloads.length;
+    const dlTab = document.getElementById('model-tab-downloads');
+    if (dlTab && !dlTab.classList.contains('hidden') && data.telemetry.active_downloads.length > 0) {
+      loadDownloads();
+    }
+  }
+}
+
+function renderHardwareMetrics(data) {
+  const grid = document.getElementById('hardware-metrics-grid');
+  if (!grid) return;
+
+  const cpu = data.cpu || { percent: 0, cores_physical: 1, cores_logical: 1 };
+  const mem = data.memory || { percent: 0, used_gb: 0, total_gb: 0, available_gb: 0 };
+  const disk = data.disk || { percent: 0, used_gb: 0, total_gb: 0, free_gb: 0, path: '/data' };
+  const proc = data.llm_process || { is_running: false, pid: null, rss_mb: 0, rss_gb: 0, cpu_percent: 0, threads: 0, uptime_seconds: 0, reachable: false };
+
+  const cpuBarColor = cpu.percent >= 85 ? 'bg-rose-500' : cpu.percent >= 65 ? 'bg-amber-400' : 'bg-cyan-400';
+  const memBarColor = mem.percent >= 85 ? 'bg-rose-500' : mem.percent >= 70 ? 'bg-amber-400' : 'bg-indigo-400';
+  const diskBarColor = disk.percent >= 90 ? 'bg-rose-500' : disk.percent >= 75 ? 'bg-amber-400' : 'bg-emerald-400';
+
+  grid.innerHTML = `
+    <!-- CPU CARD -->
+    <div class="glass-card p-4 flex flex-col justify-between border border-cyan-500/10 hover:border-cyan-500/30 transition">
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            CPU do Host
+          </span>
+          <span class="text-xs font-mono font-bold text-cyan-400">${cpu.percent}%</span>
+        </div>
+        <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-white/5 my-2">
+          <div class="${cpuBarColor} h-full transition-all duration-500 rounded-full" style="width: ${Math.min(cpu.percent, 100)}%"></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2 flex justify-between font-mono">
+        <span>${cpu.cores_physical} físicas / ${cpu.cores_logical} vCPUs</span>
+        <span class="text-cyan-400 font-semibold">Ativo</span>
+      </p>
+    </div>
+
+    <!-- MEMORY CARD -->
+    <div class="glass-card p-4 flex flex-col justify-between border border-indigo-500/10 hover:border-indigo-500/30 transition">
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+            Memória RAM
+          </span>
+          <span class="text-xs font-mono font-bold text-indigo-400">${mem.percent}%</span>
+        </div>
+        <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-white/5 my-2">
+          <div class="${memBarColor} h-full transition-all duration-500 rounded-full" style="width: ${Math.min(mem.percent, 100)}%"></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2 flex justify-between font-mono">
+        <span class="font-bold text-white">${mem.used_gb} GB <span class="font-normal text-slate-500">/ ${mem.total_gb} GB</span></span>
+        <span class="text-indigo-300">Livre: ${mem.available_gb} GB</span>
+      </p>
+    </div>
+
+    <!-- DISK CARD -->
+    <div class="glass-card p-4 flex flex-col justify-between border border-emerald-500/10 hover:border-emerald-500/30 transition">
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Armazenamento (${disk.path})
+          </span>
+          <span class="text-xs font-mono font-bold text-emerald-400">${disk.percent}%</span>
+        </div>
+        <div class="w-full bg-dark-950 rounded-full h-2 overflow-hidden border border-white/5 my-2">
+          <div class="${diskBarColor} h-full transition-all duration-500 rounded-full" style="width: ${Math.min(disk.percent, 100)}%"></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2 flex justify-between font-mono">
+        <span class="font-bold text-white">${disk.used_gb} GB <span class="font-normal text-slate-500">/ ${disk.total_gb} GB</span></span>
+        <span class="text-emerald-300">Livre: ${disk.free_gb} GB</span>
+      </p>
+    </div>
+
+    <!-- LLM PROCESS CARD -->
+    <div class="glass-card p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 transition">
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full ${proc.is_running ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}"></span>
+            Processo llama-server
+          </span>
+          <span class="badge ${proc.is_running ? (proc.reachable ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30') : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'} text-[10px]">
+            ${proc.is_running ? (proc.reachable ? `PID ${proc.pid}` : 'Iniciando...') : 'Offline'}
+          </span>
+        </div>
+        <p class="font-bold text-base text-white mt-1">
+          ${proc.is_running ? `${proc.rss_gb} GB <span class="text-xs font-normal text-slate-400">RAM (RSS)</span>` : '<span class="text-rose-400 text-sm">Servidor desligado</span>'}
+        </p>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2 flex justify-between font-mono">
+        <span>${proc.is_running ? `CPU: ${proc.cpu_percent}% | Thr: ${proc.threads}` : 'Inicie na Central'}</span>
+        <span class="text-slate-300">${proc.is_running ? formatUptime(proc.uptime_seconds) : '—'}</span>
+      </p>
+    </div>
+  `;
+}
+
+function renderRealtimeTelemetry(telemetryData) {
+  const tGrid = document.getElementById('status-telemetry-grid');
+  if (!tGrid) return;
+
+  if (telemetryData && telemetryData.total_requests !== undefined) {
+    const activeInf = telemetryData.active_inferences || 0;
+    tGrid.innerHTML = `
+      <div class="bg-dark-900/90 border border-white/5 rounded-xl p-3.5">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Requisições (Hoje)</span>
+          ${activeInf > 0 ? `<span class="badge bg-cyan-500/20 text-cyan-300 animate-pulse text-[9px]">⚡ ${activeInf} ativa(s)</span>` : ''}
+        </div>
+        <span class="text-xl font-extrabold text-white">${telemetryData.total_requests}</span>
+        <span class="text-[10px] text-emerald-400 block mt-0.5">${telemetryData.success_rate}% taxa de sucesso</span>
+      </div>
+      <div class="bg-dark-900/90 border border-white/5 rounded-xl p-3.5">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Tokens Totais (Hoje)</span>
+        <span class="text-xl font-extrabold text-cyan-400">${(telemetryData.total_tokens || 0).toLocaleString()}</span>
+        <span class="text-[10px] text-slate-400 block mt-0.5">${(telemetryData.completion_tokens || 0).toLocaleString()} gerados | ${(telemetryData.prompt_tokens || 0).toLocaleString()} prompt</span>
+      </div>
+      <div class="bg-dark-900/90 border border-white/5 rounded-xl p-3.5">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Latência Média & TTFT</span>
+        <span class="text-xl font-extrabold text-amber-400">${telemetryData.avg_latency_ms} <span class="text-xs font-normal">ms</span></span>
+        <span class="text-[10px] text-slate-400 block mt-0.5">TTFT: ${telemetryData.avg_ttft_ms || '—'} ms | P95: ${telemetryData.p95_latency_ms} ms</span>
+      </div>
+      <div class="bg-dark-900/90 border border-white/5 rounded-xl p-3.5">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Throughput / Velocidade</span>
+        <span class="text-xl font-extrabold text-indigo-400">${telemetryData.avg_tps ? `${telemetryData.avg_tps} <span class="text-xs font-normal">t/s</span>` : `${telemetryData.avg_tokens_per_request} tok/req`}</span>
+        <span class="text-[10px] text-slate-400 block mt-0.5">${telemetryData.avg_tokens_per_request} tokens/req média</span>
+      </div>
+    `;
+  } else {
+    tGrid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-slate-500">Sem requisições registradas hoje ainda. Envie um teste pelo Playground!</div>';
+  }
+}
+
+// ── Status ───────────────────────────────────────────────────────────────────
+async function loadStatus() {
+  const [statusData, providersData, telemetryData] = await Promise.all([
+    api('GET', '/v1/admin/status').catch(() => null),
+    api('GET', '/v1/models/providers').catch(() => null),
+    api('GET', '/v1/metrics/summary?period=today').catch(() => null),
+  ]);
+
+  if (statusData) {
+    const sysVersion = statusData.version ? `v${statusData.version}` : 'v0.0.4';
+    const headerVer = document.getElementById('header-version');
+    if (headerVer) headerVer.textContent = sysVersion;
+
+    document.getElementById('slots-indicator').textContent =
+      `${statusData.active_slots}/${statusData.parallel_slots} slots ativos`;
+
+    const activeModelDisplay = statusData.active_model || (statusData.models && statusData.models.length ? statusData.models[0].id : 'Nenhum ativado');
+    const cards = [
+      { label: 'Versão do Compilado', value: sysVersion, sub: 'Lido de VERSION' },
+      { label: 'Backend Local (LLM)', value: statusData.llm_reachable ? '✅ Conectado' : '⚠️ Não Detectado', sub: statusData.model_url },
+      { label: 'Slots Simultâneos', value: `${statusData.parallel_slots} slots`, sub: `${statusData.active_slots} em execução` },
+      { label: 'Modelo Local Ativo', value: activeModelDisplay, sub: statusData.active_filename ? `Contexto: ${statusData.active_context || 8192}` : 'Central de Modelos' },
+      { label: 'Provedor Padrão', value: (providersData ? providersData.default_provider : 'local').toUpperCase(), sub: 'Configurado no .env' },
+    ];
+
+    document.getElementById('status-grid').innerHTML = cards.map(c => `
+      <div class="glass-card p-4">
+        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">${c.label}</p>
+        <p class="font-bold text-base text-white">${c.value}</p>
+        <p class="text-xs text-slate-400 mt-1 truncate">${c.sub}</p>
+      </div>`).join('');
+  }
+
+  if (providersData && providersData.providers) {
+    const pGrid = document.getElementById('providers-grid');
+    const provs = providersData.providers;
+    pGrid.innerHTML = Object.entries(provs).map(([name, info]) => {
+      const isConfigured = info.configured;
+      return `
+        <div class="glass-card p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-sm text-white capitalize">${name}</span>
+            <span class="badge ${isConfigured ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">
+              ${isConfigured ? 'Ativo' : 'Não Configurado'}
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mono truncate">${info.model || info.target || '—'}</p>
+        </div>`;
+    }).join('');
+  }
+
+  if (telemetryData) {
+    renderRealtimeTelemetry(telemetryData);
+  }
+}
+
+// ── Playground Chat ─────────────────────────────────────────────────────────
+let _chatConvId = null;
+let _chatAbortCtrl = null;
+let _chatIsStreaming = false;
+
+function initChat() {
+  const container = document.getElementById('chat-messages');
+  if (!container.children.length) {
+    clearChat();
+  }
+  const input = document.getElementById('chat-input');
+  if (input && !input.dataset.bound) {
+    input.dataset.bound = 'true';
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+      }
+    });
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+    });
+  }
+
+  const provSelect = document.getElementById('chat-provider');
+  if (provSelect && !provSelect.dataset.bound) {
+    provSelect.dataset.bound = 'true';
+    provSelect.addEventListener('change', () => checkChatHealthBanner());
+  }
+
+  checkChatHealthBanner();
+}
+
+async function checkChatHealthBanner() {
+  const alertEl = document.getElementById('chat-health-alert');
+  if (!alertEl) return;
+  try {
+    const statusData = await api('GET', '/v1/admin/status');
+    const selectedProvider = document.getElementById('chat-provider')?.value || '';
+    const isLocalProvider = !selectedProvider || selectedProvider === 'local';
+
+    if (statusData && !statusData.llm_reachable && isLocalProvider) {
+      const activeModel = statusData.active_model || '';
+      const isAsr = activeModel.toLowerCase().includes('asr') || activeModel.toLowerCase().includes('whisper');
+      alertEl.innerHTML = `
+        <div class="p-3 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-200 text-xs flex items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-base shrink-0">⚠️</span>
+            <div>
+              <p class="font-semibold text-white">Servidor de inferência local não detectado (${esc(statusData.model_url || 'llama-server')})</p>
+              <p class="text-[11px] text-amber-300/80 mt-0.5">
+                ${isAsr ? `O modelo ativo '<strong>${esc(activeModel)}</strong>' é do tipo Reconhecimento de Voz (ASR) e é incompatível com chat de texto no llama.cpp.` : 'O backend llama-server está offline ou o modelo ativo falhou ao carregar.'}
+                Selecione um provedor externo (Claude, Gemini, OpenAI) no topo ou ative um modelo de texto compatível na aba Gestão de Modelos.
+              </p>
+            </div>
+          </div>
+          <button onclick="nav('models')" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs shrink-0 transition">
+            Ver Modelos
+          </button>
+        </div>
+      `;
+      alertEl.classList.remove('hidden');
+    } else {
+      alertEl.classList.add('hidden');
+    }
+  } catch {
+    alertEl.classList.add('hidden');
+  }
+}
+
+function clearChat() {
+  _chatConvId = null;
+  const container = document.getElementById('chat-messages');
+  container.innerHTML = `
+    <div class="flex gap-3 max-w-2xl">
+      <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-black text-xs shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+        Ω
+      </div>
+      <div class="bg-dark-900/90 border border-white/5 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-200 leading-relaxed shadow-lg">
+        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-white/5">
+          <span class="font-bold text-white text-xs">Orion Light</span>
+          <span class="badge bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[9px]">Sovereign AI Gateway</span>
+        </div>
+        <p>Olá! Sou o <strong>Orion Light</strong>, assistente soberano de inteligência artificial do ecossistema Orion.</p>
+        <p class="mt-2 text-slate-400">Este playground permite validar se o modelo ativo está respondendo adequadamente, testar raciocínio e medir a velocidade de inferência (TTFT e tokens por segundo) em tempo real.</p>
+        <p class="mt-2 text-slate-400">Você pode digitar uma pergunta abaixo ou clicar em um dos <strong>testes rápidos</strong> acima.</p>
+      </div>
+    </div>
+  `;
+}
+
+function sendQuickPrompt(txt) {
+  const input = document.getElementById('chat-input');
+  input.value = txt;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+}
+
+function stopChatStream() {
+  if (_chatAbortCtrl) {
+    _chatAbortCtrl.abort();
+    _chatAbortCtrl = null;
+  }
+  setChatStreaming(false);
+}
+
+function setChatStreaming(streaming) {
+  _chatIsStreaming = streaming;
+  const sendBtn = document.getElementById('chat-send-btn');
+  const stopBtn = document.getElementById('chat-stop-btn');
+  const input = document.getElementById('chat-input');
+  if (streaming) {
+    sendBtn.classList.add('hidden');
+    stopBtn.classList.remove('hidden');
+    input.disabled = true;
+  } else {
+    sendBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+function formatMarkdown(raw) {
+  let s = esc(raw);
+  s = s.replace(/\`\`\`([\\s\\S]*?)\`\`\`/g, '<pre class="bg-dark-950 border border-white/10 rounded-xl p-3 my-2 text-[11px] font-mono overflow-x-auto text-cyan-300"><code>$1</code></pre>');
+  s = s.replace(/\`([^\`]+)\`/g, '<code class="bg-dark-950 text-cyan-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5">$1</code>');
+  s = s.replace(/\\*\\*([^\\*]+)\\*\\*/g, '<strong class="text-white font-bold">$1</strong>');
+  s = s.replace(/\\n/g, '<br>');
+  return s;
+}
+
+document.getElementById('chat-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (_chatIsStreaming) return;
+  const input = document.getElementById('chat-input');
+  const query = input.value.trim();
+  if (!query) return;
+  input.value = '';
+  input.style.height = '48px';
+
+  const container = document.getElementById('chat-messages');
+
+  // Append user message
+  const userDiv = document.createElement('div');
+  userDiv.className = 'flex justify-end';
+  userDiv.innerHTML = `
+    <div class="bg-cyan-600/20 border border-cyan-500/30 rounded-2xl rounded-tr-sm p-4 max-w-xl text-xs text-cyan-50 shadow-md">
+      <div class="flex items-center justify-end gap-1.5 mb-1 text-[10px] text-cyan-300 font-semibold uppercase">
+        <span>Você</span>
+      </div>
+      <div class="whitespace-pre-wrap leading-relaxed">${esc(query)}</div>
+    </div>
+  `;
+  container.appendChild(userDiv);
+
+  // Append assistant message shell
+  const msgId = 'msg-' + Date.now();
+  const textId = 'text-' + msgId;
+  const metaId = 'meta-' + msgId;
+
+  const assistDiv = document.createElement('div');
+  assistDiv.className = 'flex gap-3 max-w-3xl';
+  assistDiv.innerHTML = `
+    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-black text-xs shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+      Ω
+    </div>
+    <div class="flex-1 bg-dark-900/90 border border-white/5 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-200 shadow-lg">
+      <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-white/5">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-white text-xs">Orion Light</span>
+          <span class="badge bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[9px]">Soberano</span>
+        </div>
+        <span id="${metaId}" class="text-[10px] mono text-slate-400">⚡ Aguardando modelo...</span>
+      </div>
+      <div id="${textId}" class="markdown-content text-slate-200 leading-relaxed min-h-[20px]">
+        <div class="flex items-center gap-1 text-slate-400 animate-pulse">
+          <div class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></div>
+          <span>Gerando inferência...</span>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(assistDiv);
+  container.scrollTop = container.scrollHeight;
+
+  const textEl = document.getElementById(textId);
+  const metaEl = document.getElementById(metaId);
+
+  const selectedProvider = document.getElementById('chat-provider').value;
+  const t0 = performance.now();
+  let ttft = null;
+  let fullReply = '';
+
+  setChatStreaming(true);
+  _chatAbortCtrl = new AbortController();
+
+  try {
+    const res = await fetch('/v1/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${_token}`,
+      },
+      body: JSON.stringify({
+        query: query,
+        conv_id: _chatConvId,
+        provider: selectedProvider || undefined,
+        max_tokens: 2048,
+      }),
+      signal: _chatAbortCtrl.signal,
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
+      throw new Error(errData.detail || `Erro na requisição (HTTP ${res.status})`);
+    }
+
+    const headerConvId = res.headers.get('X-Conv-Id');
+    if (headerConvId) _chatConvId = headerConvId;
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+        if (dataStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          if (parsed.token) {
+            if (ttft === null) {
+              ttft = Math.round(performance.now() - t0);
+              textEl.innerHTML = '';
+            }
+            fullReply += parsed.token;
+            textEl.innerHTML = formatMarkdown(fullReply);
+            container.scrollTop = container.scrollHeight;
+
+            // Live throughput metrics durante a geração
+            const elapsedLive = Math.max(0.01, (performance.now() - t0) / 1000);
+            const tokenEstLive = Math.max(1, Math.round(fullReply.length / 4));
+            const liveGenSec = Math.max(0.01, elapsedLive - ((ttft || 0) / 1000));
+            const liveTps = (tokenEstLive / liveGenSec).toFixed(1);
+            metaEl.innerHTML = `
+              <span class="text-cyan-400 font-semibold animate-pulse">● Gerando em tempo real...</span> |
+              <span>TTFT: ${ttft || '—'}ms</span> |
+              <span>Tokens: ~${tokenEstLive}</span> |
+              <span class="text-emerald-400 font-semibold">${liveTps} t/s</span> |
+              <span>${Math.round(performance.now() - t0)}ms</span>
+            `;
+          }
+        } catch (parseErr) {
+        }
+      }
+    }
+
+    const totalTime = Math.round(performance.now() - t0);
+    const tokenEst = Math.max(1, Math.round(fullReply.length / 4));
+    const genSeconds = Math.max(0.01, (totalTime - (ttft || 0)) / 1000);
+    const speedTps = (tokenEst / genSeconds).toFixed(1);
+    const provName = selectedProvider || 'local';
+
+    metaEl.innerHTML = `
+      <span class="text-emerald-400 font-semibold">● Concluído</span> |
+      <span>TTFT: ${ttft || '—'}ms</span> |
+      <span>Latência: ${totalTime}ms</span> |
+      <span>~${tokenEst} tokens (${speedTps} t/s)</span> |
+      <span class="uppercase text-cyan-300 font-semibold">${provName}</span>
+    `;
+    updateRealtimeMetrics();
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      metaEl.innerHTML = `<span class="text-amber-400 font-semibold">⏹ Interrompido pelo usuário</span>`;
+    } else {
+      textEl.innerHTML = `
+        <div class="p-3 bg-rose-950/40 border border-rose-800/50 rounded-xl text-rose-300 text-xs">
+          <p class="font-bold mb-1">❌ Falha na inferência do modelo</p>
+          <p class="font-mono text-[11px]">${esc(err.message)}</p>
+          <div class="mt-2 text-[10px] text-slate-400 border-t border-rose-800/30 pt-1.5">
+            Dica: verifique se o modelo .gguf está ativo na aba <strong>Gestão de Modelos</strong> ou selecione outro provedor no topo do chat.
+          </div>
+        </div>
+      `;
+      metaEl.innerHTML = `<span class="text-rose-400 font-semibold">● Erro</span>`;
+    }
+  } finally {
+    setChatStreaming(false);
+    _chatAbortCtrl = null;
+  }
+});
+
+// ── Reports & Telemetria ────────────────────────────────────────────────────
+let _chartTokens = null;
+let _chartRequests = null;
+let _chartLatency = null;
+
+async function loadReports() {
+  const period = document.getElementById('rpt-period')?.value || '7d';
+  const labelEl = document.getElementById('rpt-period-label');
+  if (labelEl) labelEl.textContent = `Filtro ativo: ${period.toUpperCase()}`;
+
+  const [summary, timeseries, topUsers] = await Promise.all([
+    api('GET', `/v1/metrics/summary?period=${period}`).catch(() => null),
+    api('GET', `/v1/metrics/timeseries?period=${period}`).catch(() => null),
+    api('GET', `/v1/metrics/top-users?period=${period}`).catch(() => null),
+  ]);
+
+  // 1. KPI Cards
+  const kpiEl = document.getElementById('rpt-kpis');
+  if (kpiEl) {
+    const kpis = [
+      { label: 'Total Requisições', value: ((summary && summary.total_requests) || 0).toLocaleString(), sub: `${(summary && summary.success_rate) || 100}% sucesso`, color: 'text-white' },
+      { label: 'Total de Tokens', value: ((summary && summary.total_tokens) || 0).toLocaleString(), sub: `${((summary && summary.completion_tokens) || 0).toLocaleString()} completion`, color: 'text-cyan-400' },
+      { label: 'Média Tokens/Req', value: (summary && summary.avg_tokens_per_request) || 0, sub: 'Prompt + Saída', color: 'text-indigo-400' },
+      { label: 'Latência Média', value: `${(summary && summary.avg_latency_ms) || 0} ms`, sub: `P95: ${(summary && summary.p95_latency_ms) || 0} ms`, color: 'text-amber-400' },
+      { label: 'Latência P99', value: `${(summary && summary.p99_latency_ms) || 0} ms`, sub: 'Pico extremo', color: 'text-rose-400' },
+      { label: 'Falhas / Erros', value: (summary && summary.errors) || 0, sub: (summary && summary.errors > 0) ? 'Verificar logs' : 'Tudo estável', color: (summary && summary.errors > 0) ? 'text-rose-400' : 'text-emerald-400' },
+    ];
+    kpiEl.innerHTML = kpis.map(k => `
+      <div class="glass-card p-3.5">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">${k.label}</span>
+        <span class="text-xl font-extrabold ${k.color}">${k.value}</span>
+        <span class="text-[10px] text-slate-400 block mt-0.5">${k.sub}</span>
+      </div>
+    `).join('');
+  }
+
+  // 2. Chart summaries header
+  const tkEl = document.getElementById('rpt-total-tokens-chart');
+  if (tkEl) tkEl.textContent = ((summary && summary.total_tokens) || 0).toLocaleString();
+  const rqEl = document.getElementById('rpt-total-reqs-chart');
+  if (rqEl) rqEl.textContent = ((summary && summary.total_requests) || 0).toLocaleString();
+  const ltEl = document.getElementById('rpt-avg-lat-chart');
+  if (ltEl) ltEl.textContent = (summary && summary.avg_latency_ms) || 0;
+
+  // 3. Render Timeseries Charts (pass empty array if no data to ensure clean zero-state)
+  renderReportsCharts(timeseries && Array.isArray(timeseries.data) ? timeseries.data : []);
+
+  // 4. Provider distribution bars
+  const provEl = document.getElementById('rpt-providers-chart');
+  if (provEl) {
+    if (!summary || !summary.top_providers || !summary.top_providers.length) {
+      provEl.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhum dado de provedor no período.</p>';
+    } else {
+      const totTokens = summary.total_tokens || 1;
+      provEl.innerHTML = summary.top_providers.map(p => {
+        const pct = Math.min(100, Math.round((p.tokens / totTokens) * 100));
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="font-bold text-white capitalize">${esc(p.provider)}</span>
+              <span class="text-slate-400 mono">${p.requests} reqs • ${(p.tokens || 0).toLocaleString()} tokens (${pct}%)</span>
+            </div>
+            <div class="w-full h-2 bg-dark-950 rounded-full overflow-hidden border border-white/5">
+              <div class="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 5. Top Users Table
+  const tbody = document.getElementById('rpt-users-body');
+  if (tbody) {
+    const users = (topUsers && topUsers.users) ? topUsers.users : [];
+    if (!users.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-xs text-slate-500">Nenhuma requisição registrada no período selecionado.</td></tr>';
+    } else {
+      tbody.innerHTML = users.map((u, i) => `
+        <tr class="hover:bg-white/[0.02] transition">
+          <td class="px-4 py-3 text-xs text-slate-500 font-mono">#${i + 1}</td>
+          <td class="px-4 py-3 text-xs font-bold text-white">${esc(u.username)}</td>
+          <td class="px-4 py-3 text-xs text-right text-slate-300 font-mono">${(u.requests || 0).toLocaleString()}</td>
+          <td class="px-4 py-3 text-xs text-right text-cyan-300 font-mono font-semibold">${(u.total_tokens || 0).toLocaleString()}</td>
+          <td class="px-4 py-3 text-xs text-right text-slate-400 font-mono">${(u.prompt_tokens || 0).toLocaleString()}</td>
+          <td class="px-4 py-3 text-xs text-right text-slate-400 font-mono">${(u.completion_tokens || 0).toLocaleString()}</td>
+          <td class="px-4 py-3 text-xs text-right font-mono ${u.errors > 0 ? 'text-rose-400 font-bold' : 'text-slate-500'}">${u.errors || 0}</td>
+          <td class="px-4 py-3 text-xs text-right text-amber-400 font-mono">${u.avg_latency_ms || 0} ms</td>
+        </tr>
+      `).join('');
+    }
+  }
+}
+
+function renderReportsCharts(data) {
+  if (typeof Chart === 'undefined') return;
+
+  const hasData = Array.isArray(data) && data.length > 0;
+  const labels = hasData ? data.map(d => d.bucket) : ['Sem atividade'];
+  const promptTokens = hasData ? data.map(d => d.prompt_tokens || 0) : [0];
+  const complTokens = hasData ? data.map(d => d.completion_tokens || 0) : [0];
+  const successReqs = hasData ? data.map(d => d.success || 0) : [0];
+  const errorReqs = hasData ? data.map(d => d.errors || 0) : [0];
+  const latencies = hasData ? data.map(d => d.avg_latency_ms || 0) : [0];
+
+  const chartDefaultOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0b0f17',
+        titleColor: '#e2e8f0',
+        bodyColor: '#cbd5e1',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 8,
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.03)' },
+        ticks: { color: '#64748b', font: { size: 10 } }
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.03)' },
+        ticks: { color: '#64748b', font: { size: 10 } },
+        beginAtZero: true
+      }
+    }
+  };
+
+  try {
+    // 1. Tokens chart
+    const ctxTokens = document.getElementById('chart-tokens');
+    if (ctxTokens) {
+      if (_chartTokens) _chartTokens.destroy();
+      _chartTokens = new Chart(ctxTokens, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Prompt Tokens', data: promptTokens, backgroundColor: '#22d3ee', borderRadius: 4 },
+            { label: 'Completion Tokens', data: complTokens, backgroundColor: '#818cf8', borderRadius: 4 },
+          ]
+        },
+        options: {
+          ...chartDefaultOpts,
+          scales: {
+            x: { ...chartDefaultOpts.scales.x, stacked: true },
+            y: { ...chartDefaultOpts.scales.y, stacked: true }
+          }
+        }
+      });
+    }
+
+    // 2. Requests chart
+    const ctxRequests = document.getElementById('chart-requests');
+    if (ctxRequests) {
+      if (_chartRequests) _chartRequests.destroy();
+      _chartRequests = new Chart(ctxRequests, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Sucesso', data: successReqs, backgroundColor: '#34d399', borderRadius: 4 },
+            { label: 'Erros', data: errorReqs, backgroundColor: '#f43f5e', borderRadius: 4 },
+          ]
+        },
+        options: {
+          ...chartDefaultOpts,
+          scales: {
+            x: { ...chartDefaultOpts.scales.x, stacked: true },
+            y: { ...chartDefaultOpts.scales.y, stacked: true }
+          }
+        }
+      });
+    }
+
+    // 3. Latency chart
+    const ctxLatency = document.getElementById('chart-latency-hist');
+    if (ctxLatency) {
+      if (_chartLatency) _chartLatency.destroy();
+      _chartLatency = new Chart(ctxLatency, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Latência Média (ms)',
+              data: latencies,
+              borderColor: '#fbbf24',
+              backgroundColor: 'rgba(251, 191, 36, 0.1)',
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#fbbf24',
+              pointRadius: 3,
+            }
+          ]
+        },
+        options: chartDefaultOpts
+      });
+    }
+  } catch (err) {
+    console.error("Falha ao desenhar gráficos:", err);
+  }
+}
+
+async function exportCSV() {
+  const period = document.getElementById('rpt-period')?.value || '7d';
+  toast('Preparando exportação CSV...');
+  try {
+    const res = await fetch(`/v1/metrics/export?period=${period}`, {
+      headers: { Authorization: `Bearer ${_token}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orion_light_metricas_${period}_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    toast('Relatório CSV baixado com sucesso!');
+  } catch (err) {
+    toast(`Falha na exportação: ${err.message}`, true);
+  }
+}
+
+// ── Models Management ────────────────────────────────────────────────────────
+function modelTab(tab) {
+  ['local', 'hf', 'downloads'].forEach(t => {
+    document.getElementById(`model-tab-${t}`).classList.add('hidden');
+    const btn = document.getElementById(`tab-btn-${t}`);
+    btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white';
+  });
+  document.getElementById(`model-tab-${tab}`).classList.remove('hidden');
+  const activeBtn = document.getElementById(`tab-btn-${tab}`);
+  activeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30';
+
+  if (tab === 'local') loadLocalModels();
+  if (tab === 'hf') {
+    const container = document.getElementById('hf-results');
+    if (!container.children.length) {
+      searchHF();
+    }
+  }
+  if (tab === 'downloads') loadDownloads();
+}
+
+async function loadLocalModels() {
+  const models = await api('GET', '/v1/models/local').catch(() => []);
+  const tbody = document.getElementById('local-models-body');
+  document.getElementById('local-models-count').textContent = `${models.length} modelo(s) armazenado(s) em disco`;
+
+  if (!models.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500 text-xs">Nenhum modelo .gguf local. Use a aba Hugging Face para baixar.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = models.map(m => `
+    <tr class="hover:bg-white/[0.02] transition">
+      <td class="px-4 py-3">
+        <div class="font-semibold text-slate-200 text-xs">${esc(m.display_name || m.name)}</div>
+        <div class="text-[10px] text-slate-500 mono truncate max-w-[220px]">${esc(m.name)}</div>
+      </td>
+      <td class="px-4 py-3 text-center">
+        ${m.is_active ? `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ATIVO
+          </span>` : `
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400 border border-white/5">
+            PARADO
+          </span>`}
+      </td>
+      <td class="px-4 py-3 text-xs">
+        <span class="mono text-indigo-300 font-semibold">${m.context_window || 8192} ctx</span>
+        <span class="text-[11px] text-slate-500"> | GPU: ${m.gpu_layers === -1 ? 'Auto' : m.gpu_layers} | Thr: ${m.cpu_threads || 'Auto'}</span>
+      </td>
+      <td class="px-4 py-3 text-xs">
+        <span class="text-slate-300 text-[11px]">${m.loading_strategy === 'keep_warm' ? '🔥 Keep Warm' : '⚡ On Demand'}</span>
+      </td>
+      <td class="px-4 py-3 text-cyan-400 text-xs font-semibold">${m.size_gb} GB</td>
+      <td class="px-4 py-3 text-right">
+        <div class="flex items-center justify-end gap-1.5">
+          ${!m.is_active ? `
+            <button onclick="activateLocalModel('${esc(m.name)}')"
+              class="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-semibold transition flex items-center gap-1">
+              <span>▶</span> Iniciar
+            </button>` : `
+            <button onclick="deactivateLocalModel('${esc(m.name)}')"
+              class="text-xs bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-lg font-semibold transition flex items-center gap-1">
+              <span>⏹</span> Parar
+            </button>`}
+          <button onclick="openConfigModel('${esc(m.name)}', '${esc(m.display_name || '')}', ${m.context_window || 8192}, ${m.gpu_layers !== undefined ? m.gpu_layers : -1}, '${esc(m.loading_strategy || 'keep_warm')}', ${m.cpu_threads || 0})"
+            class="text-xs bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-lg font-medium transition">
+            ⚙ Config
+          </button>
+          <button onclick="deleteLocalModel('${esc(m.name)}')"
+            class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-lg transition">
+            🗑
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function activateLocalModel(filename) {
+  try {
+    toast(`Iniciando ativação de "${filename}"...`);
+    const res = await api('POST', `/v1/models/local/${encodeURIComponent(filename)}/activate`);
+    toast((res && res.message) || `Modelo "${filename}" ativado com sucesso`);
+    loadLocalModels();
+    loadStatus();
+    checkChatHealthBanner();
+  } catch (err) {
+    toast(err.message, true);
+  }
+}
+
+async function deactivateLocalModel(filename) {
+  try {
+    await api('POST', `/v1/models/local/${encodeURIComponent(filename)}/deactivate`);
+    toast(`Modelo "${filename}" desativado com sucesso`);
+    loadLocalModels();
+    loadStatus();
+    checkChatHealthBanner();
+  } catch (err) {
+    toast(err.message, true);
+  }
+}
+
+function openConfigModel(filename, name, ctx, gpu, strategy, threads) {
+  document.getElementById('mc-filename').value = filename;
+  document.getElementById('mc-filename-display').textContent = filename;
+  document.getElementById('mc-name').value = name || '';
+  document.getElementById('mc-ctx').value = String(ctx || 8192);
+  document.getElementById('mc-gpu').value = String(gpu !== undefined ? gpu : -1);
+  document.getElementById('mc-threads').value = String(threads || 0);
+  document.getElementById('mc-strategy').value = strategy || 'keep_warm';
+  show('modal-model-config');
+}
+
+document.getElementById('model-config-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const filename = document.getElementById('mc-filename').value;
+  const payload = {
+    name: document.getElementById('mc-name').value.trim() || filename,
+    context_window: parseInt(document.getElementById('mc-ctx').value, 10),
+    gpu_layers: parseInt(document.getElementById('mc-gpu').value, 10),
+    cpu_threads: parseInt(document.getElementById('mc-threads').value, 10) || 0,
+    loading_strategy: document.getElementById('mc-strategy').value,
+  };
+  try {
+    await api('PUT', `/v1/models/local/${encodeURIComponent(filename)}/config`, payload);
+    closeModal('modal-model-config');
+    toast('Parâmetros do modelo salvos com sucesso');
+    loadLocalModels();
+  } catch (err) {
+    toast(err.message, true);
+  }
+});
+
+async function deleteLocalModel(filename) {
+  if (!confirm(`Tem certeza que deseja apagar o modelo "${filename}" do disco?`)) return;
+  try {
+    await api('DELETE', `/v1/models/local/${encodeURIComponent(filename)}`);
+    toast('Modelo removido com sucesso');
+    loadLocalModels();
+  } catch (err) { toast(err.message, true); }
+}
+
+async function searchHF() {
+  const q = document.getElementById('hf-search-query').value.trim();
+  const container = document.getElementById('hf-results');
+  container.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-sm flex flex-col items-center gap-2"><div class="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div><span>Buscando repositórios no Hugging Face...</span></div>';
+
+  try {
+    const results = await api('GET', `/v1/models/hf/search?q=${encodeURIComponent(q)}&limit=18`);
+    if (!results || !results.length) {
+      container.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 text-xs glass-card p-6">Nenhum modelo GGUF encontrado. Tente outro termo (ex: Qwen, Llama, MedLlama, DeepSeek).</div>';
+      return;
+    }
+
+    container.innerHTML = results.map(r => `
+      <div class="glass-card p-4 flex flex-col justify-between hover:border-cyan-500/40 transition gap-3">
+        <div>
+          <div class="flex justify-between items-start gap-2 mb-2">
+            <h4 class="font-bold text-sm text-white break-all leading-snug">${esc(r.id)}</h4>
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              <span class="badge bg-slate-800 text-slate-400">⬇ ${r.downloads > 1000 ? (r.downloads/1000).toFixed(1)+'k' : r.downloads}</span>
+              ${r.size_label ? `<span class="badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${esc(r.size_label)}</span>` : ''}
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-2">Por: <span class="text-cyan-300 font-medium">${esc(r.author || 'comunidade')}</span></p>
+          <div class="flex flex-wrap gap-1 mb-1">
+            ${(r.tags || []).slice(0, 4).map(t => `<span class="badge bg-dark-900 text-slate-400 border border-white/5 text-[9px]">${esc(t)}</span>`).join('')}
+          </div>
+        </div>
+        <button onclick="viewHfFiles('${esc(r.id)}')"
+          class="w-full bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 rounded-xl py-2 text-xs font-semibold transition">
+          Ver Arquivos GGUF
+        </button>
+      </div>`).join('');
+  } catch (err) {
+    container.innerHTML = `
+      <div class="col-span-full py-8 text-center glass-card p-6 border border-rose-500/20">
+        <p class="text-rose-400 text-xs font-semibold mb-2">Falha ao buscar no Hugging Face: ${esc(err.message)}</p>
+        <button onclick="searchHF()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg border border-white/10 transition">
+          Tentar Novamente
+        </button>
+      </div>`;
+  }
+}
+
+async function viewHfFiles(repoId) {
+  document.getElementById('hf-modal-title').textContent = 'Selecionar Arquivo';
+  document.getElementById('hf-modal-repo').textContent = repoId;
+  const tbody = document.getElementById('hf-files-body');
+  tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400 text-xs animate-pulse">Obtendo metadados dos arquivos GGUF...</td></tr>';
+  show('modal-hf-files');
+
+  try {
+    const files = await api('GET', `/v1/models/hf/files?repo_id=${encodeURIComponent(repoId)}`);
+    if (!files.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-slate-500 text-xs">Nenhum arquivo .gguf encontrado neste repositório.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = files.map(f => `
+      <tr class="hover:bg-white/[0.02]">
+        <td class="px-3 py-2.5 mono text-slate-200 text-xs">${esc(f.filename)}</td>
+        <td class="px-3 py-2.5">
+          <span class="badge bg-indigo-500/15 text-indigo-300 border border-indigo-500/20">${esc(f.quantization)}</span>
+        </td>
+        <td class="px-3 py-2.5 text-right text-cyan-400 font-semibold text-xs">${f.size_gb} GB</td>
+        <td class="px-3 py-2.5 text-center">
+          <button onclick="startDownload('${esc(repoId)}', '${esc(f.filename)}')"
+            class="bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-semibold transition">
+            Baixar
+          </button>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-rose-400 text-xs">Erro ao carregar arquivos: ${esc(err.message)}</td></tr>`;
+  }
+}
+
+async function startDownload(repoId, filename) {
+  closeModal('modal-hf-files');
+  try {
+    const res = await api('POST', '/v1/models/hf/download', { repo_id: repoId, filename });
+    if (res.status === 'exists') {
+      toast(res.message);
+    } else {
+      toast(`Download iniciado: ${filename}`);
+      modelTab('downloads');
+    }
+  } catch (err) { toast(err.message, true); }
+}
+
+async function loadDownloads() {
+  const downloads = await api('GET', '/v1/models/downloads').catch(() => []);
+  const list = document.getElementById('downloads-list');
+  const badge = document.getElementById('download-count-badge');
+  badge.textContent = downloads.filter(d => d.status === 'downloading').length;
+
+  if (!downloads.length) {
+    list.innerHTML = '<div class="glass-card p-6 text-center text-slate-500 text-xs">Nenhum download registrado.</div>';
+    return;
+  }
+
+  list.innerHTML = downloads.map(d => {
+    const isDownloading = d.status === 'downloading';
+    return `
+      <div class="glass-card p-4">
+        <div class="flex justify-between items-start gap-3 mb-2">
+          <div>
+            <h4 class="font-bold text-xs text-white mono break-all">${esc(d.filename)}</h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">Repo: ${esc(d.repo_id)}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge ${d.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : isDownloading ? 'bg-cyan-500/20 text-cyan-400 animate-pulse' : 'bg-rose-500/20 text-rose-400'}">
+              ${d.status.toUpperCase()}
+            </span>
+            <button onclick="cancelDownload(${d.id})" class="text-[10px] text-slate-400 hover:text-rose-400 px-2 py-1 rounded bg-dark-900 border border-white/5">
+              ${isDownloading ? 'Cancelar' : 'Limpar'}
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="w-full bg-dark-900 rounded-full h-2 overflow-hidden mb-2 border border-white/5">
+          <div class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-2 rounded-full transition-all duration-500" style="width: ${d.progress}%"></div>
+        </div>
+
+        <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+          <span>${d.progress}% (${d.speed || '—'})</span>
+          <span>ETA: ${d.eta || '—'}</span>
+        </div>
+        ${d.error_message ? `<p class="text-[11px] text-rose-400 mt-1.5">${esc(d.error_message)}</p>` : ''}
+      </div>`;
+  }).join('');
+}
+
+async function cancelDownload(id) {
+  try {
+    await api('DELETE', `/v1/models/downloads/${id}`);
+    toast('Download atualizado');
+    loadDownloads();
+  } catch (err) { toast(err.message, true); }
+}
+
+// Polling suave de downloads a cada 3s quando na aba
+clearInterval(_downloadsPollTimer);
+_downloadsPollTimer = setInterval(() => {
+  const dlTab = document.getElementById('model-tab-downloads');
+  if (dlTab && !dlTab.classList.contains('hidden')) {
+    loadDownloads();
+  }
+}, 3000);
+
+// ── Users ────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const users = await api('GET', '/v1/admin/users').catch(() => null);
+  if (!users) return;
+  const tbody = document.getElementById('users-body');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500 text-xs">Nenhum usuário</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => `
+    <tr class="hover:bg-white/[0.02] transition">
+      <td class="px-4 py-3 font-semibold text-slate-200 text-xs">${esc(u.username)}</td>
+      <td class="px-4 py-3">
+        <span class="badge ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-400'}">
+          ${u.role}
+        </span>
+      </td>
+      <td class="px-4 py-3">
+        ${u.has_api_key
+          ? '<span class="badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ativa (365d)</span>'
+          : '<span class="badge bg-slate-800 text-slate-500">Nenhuma</span>'}
+      </td>
+      <td class="px-4 py-3 text-xs text-slate-400">${fmt(u.created_at)}</td>
+      <td class="px-4 py-3 text-right">
+        <div class="flex items-center justify-end gap-1.5">
+          <button onclick="generateApiKey(${u.id},'${esc(u.username)}')"
+            class="text-xs bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 border border-cyan-500/20 px-2.5 py-1 rounded-md font-medium">
+            🔑 API Key
+          </button>
+          ${u.has_api_key ? `<button onclick="revokeApiKey(${u.id})"
+            class="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 px-2 py-1 rounded-md">Revogar</button>` : ''}
+          <button onclick="openPasswd(${u.id},'${esc(u.username)}')"
+            class="text-xs bg-dark-800 text-slate-300 hover:bg-dark-700 px-2 py-1 rounded-md border border-white/5">Senha</button>
+          <button onclick="deleteUser(${u.id},'${esc(u.username)}')"
+            class="text-xs text-slate-500 hover:text-rose-400 px-2 py-1 rounded-md">✕</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openCreateUser() {
+  document.getElementById('c-username').value = '';
+  document.getElementById('c-password').value = '';
+  document.getElementById('c-role').value = 'user';
+  hide('c-err');
+  show('modal-create');
+}
+
+document.getElementById('create-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = document.getElementById('c-err');
+  hide('c-err');
+  try {
+    await api('POST', '/v1/admin/users', {
+      username: document.getElementById('c-username').value.trim(),
+      password: document.getElementById('c-password').value,
+      role: document.getElementById('c-role').value,
+    });
+    closeModal('modal-create');
+    toast('Usuário criado com sucesso');
+    loadUsers();
+  } catch (err) {
+    errEl.textContent = err.message;
+    show('c-err');
+  }
+});
+
+async function deleteUser(id, name) {
+  if (!confirm(`Deletar "${name}"?`)) return;
+  try {
+    await api('DELETE', `/v1/admin/users/${id}`);
+    toast('Usuário deletado');
+    loadUsers();
+  } catch (err) { toast(err.message, true); }
+}
+
+async function generateApiKey(id, name) {
+  if (!confirm(`Gerar nova API Key para "${name}"? A anterior será invalidada imediatamente.`)) return;
+  try {
+    const d = await api('POST', `/v1/admin/users/${id}/api-key`);
+    document.getElementById('apikey-value').textContent = d.api_key;
+    show('modal-apikey');
+    loadUsers();
+  } catch (err) { toast(err.message, true); }
+}
+
+async function revokeApiKey(id) {
+  if (!confirm('Revogar API Key?')) return;
+  try {
+    await api('DELETE', `/v1/admin/users/${id}/api-key`);
+    toast('API Key revogada');
+    loadUsers();
+  } catch (err) { toast(err.message, true); }
+}
+
+function openPasswd(id, name) {
+  _passwdUserId = id;
+  document.getElementById('passwd-label').textContent = `Usuário: ${name}`;
+  document.getElementById('p-password').value = '';
+  hide('p-err');
+  show('modal-passwd');
+}
+
+document.getElementById('passwd-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    await api('PATCH', `/v1/admin/users/${_passwdUserId}/password`, {
+      password: document.getElementById('p-password').value,
+    });
+    closeModal('modal-passwd');
+    toast('Senha alterada');
+  } catch (err) {
+    const errEl = document.getElementById('p-err');
+    errEl.textContent = err.message;
+    show('p-err');
+  }
+});
+
+function copyApiKey() {
+  navigator.clipboard.writeText(document.getElementById('apikey-value').textContent)
+    .then(() => toast('Chave copiada com sucesso'))
+    .catch(() => toast('Erro ao copiar', true));
+}
+
+// ── Settings ─────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  const d = await api('GET', '/v1/admin/settings').catch(() => null);
+  if (!d) return;
+
+  if (d.DEFAULT_PROVIDER) document.getElementById('cfg-default-provider').value = d.DEFAULT_PROVIDER;
+  if (d.ANTHROPIC_API_KEY !== undefined) document.getElementById('cfg-anthropic-key').value = d.ANTHROPIC_API_KEY;
+  if (d.CLAUDE_MODEL !== undefined) document.getElementById('cfg-claude-model').value = d.CLAUDE_MODEL;
+  if (d.GEMINI_API_KEY !== undefined) document.getElementById('cfg-gemini-key').value = d.GEMINI_API_KEY;
+  if (d.GEMINI_MODEL !== undefined) document.getElementById('cfg-gemini-model').value = d.GEMINI_MODEL;
+  if (d.OPENAI_API_KEY !== undefined) document.getElementById('cfg-openai-key').value = d.OPENAI_API_KEY;
+  if (d.OPENAI_MODEL !== undefined) document.getElementById('cfg-openai-model').value = d.OPENAI_MODEL;
+  if (d.MODEL_URL !== undefined) document.getElementById('cfg-model-url').value = d.MODEL_URL;
+  if (d.CPU_THREADS !== undefined) document.getElementById('cfg-cpu-threads').value = d.CPU_THREADS;
+  if (d.PARALLEL_SLOTS !== undefined) document.getElementById('cfg-parallel-slots').value = d.PARALLEL_SLOTS;
+  if (d.MAX_CONTEXT_CHARS !== undefined) document.getElementById('cfg-max-context').value = d.MAX_CONTEXT_CHARS;
+  if (d.SEARCH_MAX_RESULTS !== undefined) document.getElementById('cfg-search-results').value = d.SEARCH_MAX_RESULTS;
+}
+
+document.getElementById('settings-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const payload = {
+    DEFAULT_PROVIDER: document.getElementById('cfg-default-provider').value,
+    ANTHROPIC_API_KEY: document.getElementById('cfg-anthropic-key').value.trim(),
+    CLAUDE_MODEL: document.getElementById('cfg-claude-model').value.trim(),
+    GEMINI_API_KEY: document.getElementById('cfg-gemini-key').value.trim(),
+    GEMINI_MODEL: document.getElementById('cfg-gemini-model').value.trim(),
+    OPENAI_API_KEY: document.getElementById('cfg-openai-key').value.trim(),
+    OPENAI_MODEL: document.getElementById('cfg-openai-model').value.trim(),
+    MODEL_URL: document.getElementById('cfg-model-url').value.trim(),
+    CPU_THREADS: parseInt(document.getElementById('cfg-cpu-threads').value, 10) || 0,
+    PARALLEL_SLOTS: parseInt(document.getElementById('cfg-parallel-slots').value, 10),
+    MAX_CONTEXT_CHARS: parseInt(document.getElementById('cfg-max-context').value, 10),
+    SEARCH_MAX_RESULTS: parseInt(document.getElementById('cfg-search-results').value, 10),
+  };
+  try {
+    const res = await api('PUT', '/v1/admin/settings', payload);
+    toast(res.message || 'Configurações salvas e aplicadas com sucesso');
+    loadStatus();
+  } catch (err) {
+    toast(err.message, true);
+  }
+});
+
+// ── Modals & Toast ───────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+['modal-create', 'modal-passwd', 'modal-apikey', 'modal-hf-files', 'modal-model-config'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', e => {
+      if (e.target.id === id) closeModal(id);
+    });
+  }
+});
+
+let _toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `fixed bottom-6 right-6 text-xs px-4 py-3 rounded-xl shadow-2xl z-50 transition-opacity duration-300 ${isError ? 'bg-rose-950 border border-rose-800 text-rose-200' : 'bg-dark-800 border border-cyan-500/30 text-white'}`;
+  el.style.opacity = '1';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.style.opacity = '0', 3500);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmt(iso) {
+  return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+if (_token) {
+  showApp();
+} else {
+  show('view-login');
+}
+</script>
+</body>
+</html>
+

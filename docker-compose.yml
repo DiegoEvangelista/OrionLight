@@ -1,0 +1,56 @@
+version: "3.9"
+
+# docker-compose.yml é uma das formas de subir o Orion Light.
+# O llama-server pode ser qualquer servidor OpenAI-compatible (Ollama, llama.cpp, etc.)
+# configurado via MODEL_URL no .env do serviço orion-light.
+#
+# PARALLEL_SLOTS controla quantas requisições simultâneas o Orion Light aceita
+# via semáforo interno — independente de como o servidor LLM foi iniciado.
+
+services:
+  llama-server:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    restart: unless-stopped
+    volumes:
+      - models:/models:ro
+    environment:
+      - LLAMA_ARG_MODEL=/models/${MODEL_FILE:-model.gguf}
+      - LLAMA_ARG_CTX_SIZE=${CTX_SIZE:-8192}
+      - LLAMA_ARG_HOST=0.0.0.0
+      - LLAMA_ARG_PORT=8080
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  orion-light:
+    build: .
+    image: orion-light:${ORION_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      llama-server:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - MODEL_URL=http://llama-server:8080
+    volumes:
+      - db_data:/data/db
+      - chroma_data:/data/chroma
+      - models:/data/models
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  models:
+    # docker volume create --opt type=none --opt o=bind --opt device=/path/to/models models
+  db_data:
+  chroma_data:

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Env & secrets
+.env
+*.env
+
+# Dev tooling
+.git/
+.gitignore
+*.md
+.dockerignore
+
+# Data volumes (mounted at runtime, not baked into image)
+data/
+
+# Tests
+tests/
+test_*.py
+
+# Build scripts (not needed inside container)
+build.sh
+build.ps1
