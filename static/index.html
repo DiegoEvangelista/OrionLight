@@ -1044,6 +1044,15 @@ function renderHardwareMetrics(data) {
   const memBarColor = mem.percent >= 85 ? 'bg-rose-500' : mem.percent >= 70 ? 'bg-amber-400' : 'bg-indigo-400';
   const diskBarColor = disk.percent >= 90 ? 'bg-rose-500' : disk.percent >= 75 ? 'bg-amber-400' : 'bg-emerald-400';
 
+  const isContainerCpu = !!cpu.is_container;
+  const isContainerMem = !!mem.is_container;
+  const cpuBadgeHtml = isContainerCpu ? `<span class="badge bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[9px] ml-1">${t('status_container_badge')}</span>` : '';
+  const memBadgeHtml = isContainerMem ? `<span class="badge bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 text-[9px] ml-1">${t('status_container_badge')}</span>` : '';
+
+  const cpuSubtitle = isContainerCpu
+    ? `<span>${cpu.cores_logical} ${t('status_container_vcpus')}</span>`
+    : `<span>${cpu.cores_physical} ${t('cpu_physical')} / ${cpu.cores_logical} ${t('cpu_vcpus')}</span>`;
+
   grid.innerHTML = `
     <!-- CPU CARD -->
     <div class="glass-card p-4 flex flex-col justify-between border border-cyan-500/10 hover:border-cyan-500/30 transition">
@@ -1051,7 +1060,7 @@ function renderHardwareMetrics(data) {
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-            ${t('status_cpu_label')}
+            ${t('status_cpu_label')}${cpuBadgeHtml}
           </span>
           <span class="text-xs font-mono font-bold text-cyan-400">${cpu.percent}%</span>
         </div>
@@ -1060,7 +1069,7 @@ function renderHardwareMetrics(data) {
         </div>
       </div>
       <p class="text-[11px] text-slate-400 mt-2 flex justify-between font-mono">
-        <span>${cpu.cores_physical} ${t('cpu_physical')} / ${cpu.cores_logical} ${t('cpu_vcpus')}</span>
+        ${cpuSubtitle}
         <span class="text-cyan-400 font-semibold">${t('status_active')}</span>
       </p>
     </div>
@@ -1071,7 +1080,7 @@ function renderHardwareMetrics(data) {
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-            ${t('status_ram_label')}
+            ${t('status_ram_label')}${memBadgeHtml}
           </span>
           <span class="text-xs font-mono font-bold text-indigo-400">${mem.percent}%</span>
         </div>

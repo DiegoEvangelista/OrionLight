@@ -842,7 +842,10 @@ Object.assign(ORION_TRANSLATIONS.pt, {
   "opt_ctx_16k": "16384 tokens",
   "opt_ctx_32k": "32768 tokens",
   "opt_ctx_64k": "65536 tokens",
-  "status_throughput_realtime": "(Tempo Real)"
+  "status_throughput_realtime": "(Tempo Real)",
+  "status_container_badge": "Contenedor",
+  "status_container_vcpus": "vCPUs (Contenedor)",
+  "status_container_ram": "RAM (Contenedor)"
 });
 Object.assign(ORION_TRANSLATIONS.en, {
   "btn_clear": "Clear",
@@ -905,7 +908,10 @@ Object.assign(ORION_TRANSLATIONS.en, {
   "opt_ctx_16k": "16384 tokens",
   "opt_ctx_32k": "32768 tokens",
   "opt_ctx_64k": "65536 tokens",
-  "status_throughput_realtime": "(Realtime)"
+  "status_throughput_realtime": "(Realtime)",
+  "status_container_badge": "Container",
+  "status_container_vcpus": "vCPUs (Container)",
+  "status_container_ram": "RAM (Container)"
 });
 Object.assign(ORION_TRANSLATIONS.es, {
   "btn_clear": "Limpiar",
@@ -968,7 +974,10 @@ Object.assign(ORION_TRANSLATIONS.es, {
   "opt_ctx_16k": "16384 tokens",
   "opt_ctx_32k": "32768 tokens",
   "opt_ctx_64k": "65536 tokens",
-  "status_throughput_realtime": "(Tiempo Real)"
+  "status_throughput_realtime": "(Tiempo Real)",
+  "status_container_badge": "Contenedor",
+  "status_container_vcpus": "vCPUs (Contenedor)",
+  "status_container_ram": "RAM (Contenedor)"
 });
 
 let _currentLang = localStorage.getItem('orion_light_lang') || 'pt';

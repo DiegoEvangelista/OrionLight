@@ -24,10 +24,121 @@ except ImportError:
     _HAS_PSUTIL = False
 
 
+# State tracking for container CPU delta calculations
+_last_cgroup_cpu_usec: Optional[float] = None
+_last_cgroup_cpu_time: Optional[float] = None
+
+
+def _read_cgroup_file(path: str) -> Optional[str]:
+    try:
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read().strip()
+    except Exception:
+        pass
+    return None
+
+
+def _is_in_container() -> bool:
+    if os.path.exists("/.dockerenv"):
+        return True
+    try:
+        if os.path.isfile("/proc/1/cgroup"):
+            with open("/proc/1/cgroup", "r", encoding="utf-8") as f:
+                content = f.read()
+                if "docker" in content or "kubepods" in content or "containerd" in content:
+                    return True
+    except Exception:
+        pass
+    return False
+
+
 def _get_system_cpu() -> Dict[str, Any]:
+    global _last_cgroup_cpu_usec, _last_cgroup_cpu_time
+    in_container = _is_in_container()
+
+    container_cores: Optional[float] = None
+    container_cpu_usec: Optional[float] = None
+
+    # 1. Try cgroup v2
+    # Quota: /sys/fs/cgroup/cpu.max (e.g. "400000 100000" or "max 100000")
+    # Usage: /sys/fs/cgroup/cpu.stat (line with "usage_usec <num>")
+    cpu_max_str = _read_cgroup_file("/sys/fs/cgroup/cpu.max")
+    if cpu_max_str:
+        parts = cpu_max_str.split()
+        if len(parts) >= 2 and parts[0] != "max":
+            try:
+                quota = float(parts[0])
+                period = float(parts[1])
+                if quota > 0 and period > 0:
+                    container_cores = round(quota / period, 2)
+            except (ValueError, ZeroDivisionError):
+                pass
+
+        stat_str = _read_cgroup_file("/sys/fs/cgroup/cpu.stat")
+        if stat_str:
+            for line in stat_str.splitlines():
+                if line.startswith("usage_usec"):
+                    try:
+                        container_cpu_usec = float(line.split()[1])
+                        break
+                    except (IndexError, ValueError):
+                        pass
+
+    # 2. Try cgroup v1
+    # Quota: /sys/fs/cgroup/cpu/cpu.cfs_quota_us
+    # Period: /sys/fs/cgroup/cpu/cpu.cfs_period_us
+    # Usage: /sys/fs/cgroup/cpuacct/cpuacct.usage (nanoseconds)
+    if container_cores is None:
+        quota_str = _read_cgroup_file("/sys/fs/cgroup/cpu/cpu.cfs_quota_us")
+        period_str = _read_cgroup_file("/sys/fs/cgroup/cpu/cpu.cfs_period_us")
+        if quota_str and period_str:
+            try:
+                quota = float(quota_str)
+                period = float(period_str)
+                if quota > 0 and period > 0:
+                    container_cores = round(quota / period, 2)
+            except (ValueError, ZeroDivisionError):
+                pass
+
+        if container_cpu_usec is None:
+            acct_str = _read_cgroup_file("/sys/fs/cgroup/cpuacct/cpuacct.usage")
+            if acct_str:
+                try:
+                    container_cpu_usec = float(acct_str) / 1000.0  # ns to us
+                except ValueError:
+                    pass
+
+    # If container CPU quota is detected:
+    if container_cores is not None and container_cores > 0:
+        now = time.monotonic()
+        calc_pct: Optional[float] = None
+        if container_cpu_usec is not None:
+            if _last_cgroup_cpu_usec is not None and _last_cgroup_cpu_time is not None:
+                dt = now - _last_cgroup_cpu_time
+                d_usec = container_cpu_usec - _last_cgroup_cpu_usec
+                if dt > 0.1 and d_usec >= 0:
+                    spent_sec = d_usec / 1_000_000.0
+                    calc_pct = round(min(100.0, max(0.0, (spent_sec / dt / container_cores) * 100.0)), 1)
+
+            _last_cgroup_cpu_usec = container_cpu_usec
+            _last_cgroup_cpu_time = now
+
+        # If first tick or delta not ready, use psutil or 0
+        if calc_pct is None:
+            calc_pct = round(psutil.cpu_percent(interval=None), 1) if _HAS_PSUTIL else 0.0
+
+        return {
+            "percent": calc_pct,
+            "cores_logical": container_cores,
+            "cores_physical": max(1, int(container_cores)),
+            "is_container": True,
+            "container_limited": True,
+        }
+
+    # Host fallback via psutil
     if _HAS_PSUTIL:
         try:
-            # interval=None provides immediate non-blocking CPU percent
             pct = psutil.cpu_percent(interval=None)
             logical = psutil.cpu_count(logical=True) or 1
             physical = psutil.cpu_count(logical=False) or logical
@@ -35,19 +146,87 @@ def _get_system_cpu() -> Dict[str, Any]:
                 "percent": round(pct, 1),
                 "cores_logical": logical,
                 "cores_physical": physical,
+                "is_container": in_container,
+                "container_limited": False,
             }
         except Exception as e:
             logger.debug("psutil cpu failed: %s", e)
 
-    # Fallback if psutil is unavailable or errors
     return {
         "percent": 0.0,
         "cores_logical": os.cpu_count() or 1,
         "cores_physical": os.cpu_count() or 1,
+        "is_container": in_container,
+        "container_limited": False,
     }
 
 
 def _get_system_memory() -> Dict[str, Any]:
+    in_container = _is_in_container()
+    host_total = 0
+    if _HAS_PSUTIL:
+        try:
+            host_total = psutil.virtual_memory().total
+        except Exception:
+            pass
+
+    # 1. Try cgroup v2
+    # Limit: /sys/fs/cgroup/memory.max
+    # Usage: /sys/fs/cgroup/memory.current
+    mem_max_str = _read_cgroup_file("/sys/fs/cgroup/memory.max")
+    mem_cur_str = _read_cgroup_file("/sys/fs/cgroup/memory.current")
+    if mem_max_str and mem_max_str != "max" and mem_cur_str:
+        try:
+            limit = int(mem_max_str)
+            usage = int(mem_cur_str)
+            # Check if realistic limit (not unlimited pseudo-int, e.g. < 1 PiB)
+            if 0 < limit < (1024 ** 5):
+                used = min(usage, limit)
+                avail = max(0, limit - used)
+                pct = round((used / limit * 100), 1) if limit else 0.0
+                return {
+                    "total_bytes": limit,
+                    "used_bytes": used,
+                    "available_bytes": avail,
+                    "total_gb": round(limit / (1024 ** 3), 2),
+                    "used_gb": round(used / (1024 ** 3), 2),
+                    "available_gb": round(avail / (1024 ** 3), 2),
+                    "percent": pct,
+                    "is_container": True,
+                    "container_limited": True,
+                }
+        except (ValueError, TypeError):
+            pass
+
+    # 2. Try cgroup v1
+    # Limit: /sys/fs/cgroup/memory/memory.limit_in_bytes
+    # Usage: /sys/fs/cgroup/memory/memory.usage_in_bytes
+    v1_lim_str = _read_cgroup_file("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+    v1_use_str = _read_cgroup_file("/sys/fs/cgroup/memory/memory.usage_in_bytes")
+    if v1_lim_str and v1_use_str:
+        try:
+            limit = int(v1_lim_str)
+            usage = int(v1_use_str)
+            # In cgroup v1, unlimited limit is usually 9223372036854771712 or >= host RAM
+            if 0 < limit < (1024 ** 5) and (host_total == 0 or limit <= host_total):
+                used = min(usage, limit)
+                avail = max(0, limit - used)
+                pct = round((used / limit * 100), 1) if limit else 0.0
+                return {
+                    "total_bytes": limit,
+                    "used_bytes": used,
+                    "available_bytes": avail,
+                    "total_gb": round(limit / (1024 ** 3), 2),
+                    "used_gb": round(used / (1024 ** 3), 2),
+                    "available_gb": round(avail / (1024 ** 3), 2),
+                    "percent": pct,
+                    "is_container": True,
+                    "container_limited": True,
+                }
+        except (ValueError, TypeError):
+            pass
+
+    # 3. Fallback to host psutil
     if _HAS_PSUTIL:
         try:
             vm = psutil.virtual_memory()
@@ -59,15 +238,17 @@ def _get_system_memory() -> Dict[str, Any]:
                 "used_gb": round(vm.used / (1024 ** 3), 2),
                 "available_gb": round(vm.available / (1024 ** 3), 2),
                 "percent": round(vm.percent, 1),
+                "is_container": in_container,
+                "container_limited": False,
             }
         except Exception as e:
             logger.debug("psutil memory failed: %s", e)
 
-    # Linux /proc/meminfo fallback
+    # 4. Fallback to /proc/meminfo
     if os.path.isfile("/proc/meminfo"):
         try:
             meminfo = {}
-            with open("/proc/meminfo", "r") as f:
+            with open("/proc/meminfo", "r", encoding="utf-8") as f:
                 for line in f:
                     parts = line.split(":")
                     if len(parts) == 2:
@@ -86,6 +267,8 @@ def _get_system_memory() -> Dict[str, Any]:
                 "used_gb": round(used / (1024 ** 3), 2),
                 "available_gb": round(avail / (1024 ** 3), 2),
                 "percent": pct,
+                "is_container": in_container,
+                "container_limited": False,
             }
         except Exception:
             pass
@@ -98,6 +281,8 @@ def _get_system_memory() -> Dict[str, Any]:
         "used_gb": 0.0,
         "available_gb": 0.0,
         "percent": 0.0,
+        "is_container": in_container,
+        "container_limited": False,
     }
 
 
