@@ -197,7 +197,7 @@ docker run -d \
 ```
 
 Open your browser at `http://localhost:8000` to access the sovereign dashboard.
-- Default credentials: `admin` / `admin` *(prompted to change or manage keys in Users & API)*.
+- Default credentials: `admin` / `change-me-in-production` *(prompted to change or manage keys in Users & API)*.
 
 ---
 
