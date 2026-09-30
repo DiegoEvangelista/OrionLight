@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import AsyncIterator, Optional, Dict, Any
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 import httpx
 
@@ -126,6 +126,57 @@ class LightLLMService:
                 except Exception:
                     err_msg = ""
                 yield f"[Erro do modelo: {exc.response.status_code} - {err_msg}]"
+
+    async def complete_with_tools(
+        self,
+        messages: List[Dict],
+        tools: List[Any],
+        tool_choice: Any = "auto",
+        max_tokens: int = 1024,
+        temperature: float = 0.2,
+        provider: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Completion não-streaming com suporte a tool calling. Retorna JSON OpenAI-compatible."""
+        chosen_provider = (provider or self.settings.DEFAULT_PROVIDER or "local").strip().lower()
+
+        if chosen_provider == "claude":
+            return await external_llm_service.complete_with_tools_claude(
+                messages, tools, tool_choice, model=model, max_tokens=max_tokens
+            )
+        if chosen_provider == "openai":
+            return await external_llm_service.complete_with_tools_openai(
+                messages, tools, tool_choice, model=model, max_tokens=max_tokens, temperature=temperature
+            )
+
+        # Provider local (llama.cpp, Ollama, vLLM, etc.)
+        active_model = model or self._get_active_model_name()
+        if not active_model:
+            return {
+                "object": "chat.completion",
+                "choices": [{"index": 0, "message": {"role": "assistant", "content": "[Aviso: Nenhum modelo local está ativo. Acesse 'Central de Modelos' e clique em 'Iniciar' no modelo desejado.]"}, "finish_reason": "stop"}],
+            }
+
+        payload: Dict[str, Any] = {
+            "messages": messages,
+            "tools": tools,
+            "tool_choice": tool_choice,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "repeat_penalty": 1.15,
+            "presence_penalty": 0.1,
+            "stream": False,
+            "model": active_model,
+        }
+
+        url = f"{self._base_url}/v1/chat/completions"
+        timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=5.0)
+
+        async with self._get_sem():
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.post(url, json=payload)
+                resp.raise_for_status()
+                return resp.json()
 
     async def health(self) -> bool:
         base = self._base_url

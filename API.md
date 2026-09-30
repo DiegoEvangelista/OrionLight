@@ -243,7 +243,7 @@ with httpx.Client() as client:
 
 ### 2.2 Chat Completions Padrão OpenAI (Agentes de IA, LangChain, SDK Oficial)
 
-Permite integração transparente e plug-and-play com qualquer biblioteca ou agente do ecossistema de IA (OpenAI SDK, LangChain, AutoGen, CrewAI, Dify, Flowise, n8n, etc.). Suporta chamadas com streaming ou síncronas.
+Permite integração transparente e plug-and-play com qualquer biblioteca ou agente do ecossistema de IA (OpenAI SDK, LangChain, AutoGen, CrewAI, Dify, Flowise, n8n, etc.). Suporta chamadas com streaming, síncronas e com **tool calling (function calling)**.
 
 ```
 POST /v1/chat/completions
@@ -251,7 +251,21 @@ Authorization: Bearer <api_key>
 Content-Type: application/json
 ```
 
-**Body:**
+**Campos do body:**
+
+| Campo | Tipo | Padrão | Descrição |
+|-------|------|--------|-----------|
+| `model` | string | `null` | Nome do modelo. Omitir usa o modelo ativo do servidor |
+| `messages` | array | — | Histórico de mensagens no formato OpenAI |
+| `max_tokens` | int | `1024` | Máximo de tokens na resposta |
+| `temperature` | float | `0.5` | Temperatura de amostragem |
+| `stream` | bool | `false` | Ativa streaming SSE estilo OpenAI |
+| `provider` | string | configuração do `.env` | `local`, `claude`, `openai`, `gemini` |
+| `enable_search` | bool | `false` | Ativa busca web (DuckDuckGo) |
+| `tools` | array | `null` | Definições de ferramentas no formato OpenAI. Quando presente, a chamada é sempre **não-streaming** |
+| `tool_choice` | string \| object | `"auto"` | `"auto"`, `"required"` ou `{"type":"function","function":{"name":"..."}}` |
+
+**Body — chamada simples:**
 ```json
 {
   "model": "local",
@@ -266,6 +280,119 @@ Content-Type: application/json
 }
 ```
 
+**Body — com tool calling:**
+```json
+{
+  "model": "local",
+  "messages": [
+    {"role": "system", "content": "Você é um assistente clínico. Use as ferramentas disponíveis."},
+    {"role": "user", "content": "Qual o faturamento da clínica este mês?"}
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "obter_dashboard",
+        "description": "Retorna métricas financeiras e operacionais da clínica",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "periodo": {"type": "string", "enum": ["mes_atual", "mes_anterior", "ano_atual"]}
+          },
+          "required": ["periodo"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "required",
+  "max_tokens": 1024,
+  "provider": "local"
+}
+```
+
+**Resposta com tool call (o modelo solicita execução da ferramenta):**
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "model": "local",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [{
+        "id": "call_xyz",
+        "type": "function",
+        "function": {
+          "name": "obter_dashboard",
+          "arguments": "{\"periodo\": \"mes_atual\"}"
+        }
+      }]
+    },
+    "finish_reason": "tool_calls"
+  }]
+}
+```
+
+**Fluxo completo de tool calling (Python):**
+```python
+import httpx, json
+
+BASE = "https://<instancia>"
+HEADERS = {"Authorization": "Bearer <api_key>", "Content-Type": "application/json"}
+
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "obter_dashboard",
+        "description": "Retorna métricas financeiras da clínica",
+        "parameters": {
+            "type": "object",
+            "properties": {"periodo": {"type": "string"}},
+            "required": ["periodo"],
+        },
+    },
+}]
+
+messages = [
+    {"role": "system", "content": "Use as ferramentas disponíveis."},
+    {"role": "user", "content": "Qual o faturamento do mês atual?"},
+]
+
+with httpx.Client() as client:
+    # 1ª chamada — modelo solicita a ferramenta
+    resp = client.post(f"{BASE}/v1/chat/completions", headers=HEADERS,
+                       json={"messages": messages, "tools": tools, "tool_choice": "required"})
+    choice = resp.json()["choices"][0]
+
+    if choice["finish_reason"] == "tool_calls":
+        tool_call = choice["message"]["tool_calls"][0]
+        fn_name = tool_call["function"]["name"]
+        fn_args = json.loads(tool_call["function"]["arguments"])
+
+        # Executa a ferramenta localmente
+        tool_result = {"faturamento": 52430.50, "periodo": fn_args["periodo"]}
+
+        # Adiciona assistant + resultado ao histórico
+        messages.append(choice["message"])
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call["id"],
+            "name": fn_name,
+            "content": json.dumps(tool_result),
+        })
+
+        # 2ª chamada — modelo formula a resposta final com os dados reais
+        resp2 = client.post(f"{BASE}/v1/chat/completions", headers=HEADERS,
+                            json={"messages": messages, "tools": tools})
+        print(resp2.json()["choices"][0]["message"]["content"])
+```
+
+> **Provedores suportados para tool calling:** `local` (llama.cpp), `openai`, `claude`. O provedor `gemini` não suporta tool calling via este endpoint.
+
+> **Streaming + tools:** quando `tools` está presente, `stream` é ignorado — a resposta é sempre síncrona (necessário para o ciclo de tool call/result).
+
 **Exemplo usando o SDK oficial da OpenAI (Python):**
 ```python
 from openai import OpenAI
@@ -277,7 +404,7 @@ client = OpenAI(
 
 # Chamada síncrona
 response = client.chat.completions.create(
-    model="local",  # ou "claude", "gemini", "openai"
+    model="local",  # ou "claude", "openai"
     messages=[
         {"role": "system", "content": "Assistente soberano Orion Light."},
         {"role": "user", "content": "Resuma as contraindicações de anti-inflamatórios em cardiopatas."},
@@ -285,7 +412,7 @@ response = client.chat.completions.create(
 )
 print(response.choices[0].message.content)
 
-# Ou chamada com streaming
+# Chamada com streaming
 stream = client.chat.completions.create(
     model="local",
     messages=[{"role": "user", "content": "Quais exames solicitar na investigação inicial de anemia?"}],

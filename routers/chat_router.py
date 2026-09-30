@@ -50,6 +50,8 @@ class ChatCompletionRequest(BaseModel):
     stream: Optional[bool] = False
     provider: Optional[str] = None
     enable_search: Optional[bool] = False
+    tools: Optional[List[Any]] = None
+    tool_choice: Optional[Any] = "auto"
 
 
 # ─── File processing ─────────────────────────────────────────────────────────
@@ -334,6 +336,28 @@ async def chat_completions(
 
     prompt_chars = sum(len(str(m.get("content", ""))) for m in messages_payload)
     prompt_tokens_est = max(1, prompt_chars // 4)
+
+    # ── Tool calling (non-streaming) ─────────────────────────────────────────
+    if req.tools:
+        try:
+            result = await llm_service.complete_with_tools(
+                messages=messages_payload,
+                tools=req.tools,
+                tool_choice=req.tool_choice if req.tool_choice is not None else "auto",
+                max_tokens=req.max_tokens or 1024,
+                temperature=req.temperature if req.temperature is not None else 0.5,
+                provider=req.provider,
+                model=req.model,
+            )
+        except Exception as exc:
+            logger.error("Tool completion error: %s", exc)
+            raise HTTPException(status_code=500, detail=str(exc))
+
+        result.setdefault("id", req_id)
+        result.setdefault("created", created_ts)
+        result.setdefault("object", "chat.completion")
+        result.setdefault("model", model_name)
+        return result
 
     token_gen = llm_service.stream_chat(
         messages=messages_payload,
